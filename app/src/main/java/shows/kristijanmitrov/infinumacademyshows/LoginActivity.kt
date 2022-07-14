@@ -45,15 +45,17 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.loginButton.setOnClickListener {
+
+            val username = binding.emailText.text.toString().split("@")[0]
 //            Explicit intent
 //            val intent = Intent(this, WelcomeActivity::class.java)
-//            intent.putExtra("username", binding.emailText.text.toString().split("@")[0])
+//            intent.putExtra("username", username)
 //            startActivity(intent)
 
 //            Implicit Intent
             val sendIntent = Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra("username", binding.emailText.text.toString().split("@")[0])
+                putExtra("USERNAME_ARG", username)
             }
             startActivity(sendIntent)
 

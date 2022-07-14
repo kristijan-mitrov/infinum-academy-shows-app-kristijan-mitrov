@@ -13,7 +13,7 @@ class WelcomeActivity : AppCompatActivity() {
         binding = ActivityWelcomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val welcomeMessage = "Welcome, ${intent.extras?.getString("username")}!"
+        val welcomeMessage = "Welcome, ${intent.extras?.getString("USERNAME_ARG")}!"
 
         binding.welcomeText.text = welcomeMessage
 
