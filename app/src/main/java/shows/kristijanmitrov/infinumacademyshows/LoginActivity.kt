@@ -1,7 +1,6 @@
 package shows.kristijanmitrov.infinumacademyshows
 
 import android.content.Intent
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.widget.doOnTextChanged
@@ -46,9 +45,18 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.loginButton.setOnClickListener {
-            val intent = Intent(this, WelcomeActivity::class.java)
-            intent.putExtra("username", binding.emailText.text.toString().split("@")[0])
-            startActivity(intent)
+//            Explicit intent
+//            val intent = Intent(this, WelcomeActivity::class.java)
+//            intent.putExtra("username", binding.emailText.text.toString().split("@")[0])
+//            startActivity(intent)
+
+//            Implicit Intent
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra("username", binding.emailText.text.toString().split("@")[0])
+            }
+            startActivity(sendIntent)
+
         }
     }
 }
