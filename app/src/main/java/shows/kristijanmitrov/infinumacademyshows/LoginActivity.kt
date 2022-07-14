@@ -11,18 +11,9 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
 
-    private fun validate(){
-        if(binding.emailInput.error == null && binding.passwordInput.error == null) {
+    private fun check() {
+        if (!(binding.emailInput.error != null || binding.emailText.text == null || binding.passwordInput.error != null || binding.passwordText.text == null))
             binding.loginButton.isEnabled = true
-            binding.loginButton.setTextColor(Color.parseColor("#52368C"))
-            binding.loginButton.setBackgroundColor(Color.parseColor("#ffffff"))
-        }
-    }
-
-    private fun invalidate(){
-        binding.loginButton.isEnabled = false
-        binding.loginButton.setTextColor(Color.parseColor("#ffffff"))
-        binding.loginButton.setBackgroundColor(Color.parseColor("#BBBBBB"))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,26 +26,28 @@ class LoginActivity : AppCompatActivity() {
         binding.emailText.doOnTextChanged { text, _, _, _ ->
             if (text.toString().matches(Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+\$"))) {
                 binding.emailInput.error = null
-                validate()
-            } else{
+                check()
+            } else {
                 binding.emailInput.error = "Email must be in correct format!"
-                invalidate()
+                binding.loginButton.isEnabled = false
             }
         }
 
         binding.passwordText.doOnTextChanged { text, _, _, _ ->
-            if(text!!.length < 6) {
-                binding.passwordInput.error = "Password must be at least 6 characters long!"
-                invalidate()
-            }else {
-                validate()
-                binding.passwordInput.error = null
+            text?.let {
+                if (it.length < 6) {
+                    binding.passwordInput.error = "Password must be at least 6 characters long!"
+                    binding.loginButton.isEnabled = false
+                } else {
+                    binding.passwordInput.error = null
+                    check()
+                }
             }
         }
 
-        binding.loginButton.setOnClickListener{
+        binding.loginButton.setOnClickListener {
             val intent = Intent(this, WelcomeActivity::class.java)
-            intent.putExtra("username", "Welcome, ${binding.emailText.text.toString().split("@")[0]}!")
+            intent.putExtra("username", binding.emailText.text.toString().split("@")[0])
             startActivity(intent)
         }
     }

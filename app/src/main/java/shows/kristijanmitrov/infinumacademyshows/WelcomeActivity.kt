@@ -6,14 +6,16 @@ import shows.kristijanmitrov.infinumacademyshows.databinding.ActivityWelcomeBind
 
 class WelcomeActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivityWelcomeBinding
+    private lateinit var binding: ActivityWelcomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWelcomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.welcomeText.text = intent.extras?.getString("username")
+        val welcomeMessage = "Welcome, ${intent.extras?.getString("username")}!"
+
+        binding.welcomeText.text = welcomeMessage
 
     }
 }
