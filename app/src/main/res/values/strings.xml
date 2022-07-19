@@ -8,4 +8,18 @@
     <string name="shows">Shows</string>
     <string name="illustration">illustration</string>
     <string name="welcome">Welcome!</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="stranger_things">Stranger Things</string>
+    <string name="test_string">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</string>
+    <string name="hide">Hide</string>
+    <string name="your_shows_are_not_showing_get_it">Your shows are not showing? Get it?</string>
+    <string name="reviews">Reviews</string>
+    <string name="no_reviews_yet">No reviews yet.</string>
+    <string name="write_a_review">Write a review</string>
+    <string name="comment">Comment</string>
+    <string name="submit">Submit</string>
 </resources>
