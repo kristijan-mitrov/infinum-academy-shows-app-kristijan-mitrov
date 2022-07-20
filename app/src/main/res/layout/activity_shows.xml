@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/hide"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="100dp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
             android:text="@string/your_shows_are_not_showing_get_it"
-            android:textAlignment="center"/>
+            android:textAlignment="center" />
     </LinearLayout>
 
 </LinearLayout>

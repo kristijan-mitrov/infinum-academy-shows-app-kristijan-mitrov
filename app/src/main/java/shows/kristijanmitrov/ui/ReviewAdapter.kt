@@ -22,8 +22,15 @@ class ReviewAdapter(
     override fun getItemCount() = items.count()
 
     fun addReview(commentText: String, rating: Int) {
-        items = items + Review(items.count().toString(), "1", "1", rating, commentText)
+        items = items + Review( "kristijan.mitrov", rating, commentText)
         notifyItemInserted(items.lastIndex)
+    }
+
+    fun getAverage(): Float {
+        var sum = 0f
+        for(item in items)
+            sum += item.ratingValue
+        return sum/itemCount
     }
 
 

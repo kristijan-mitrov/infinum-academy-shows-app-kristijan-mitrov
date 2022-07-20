@@ -25,30 +25,28 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <com.google.android.material.button.MaterialButton
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="x"
-            app:elevation="0dp"
-            android:backgroundTint="@color/white"
-            android:textColor="@color/primary"
-            android:textSize="24sp"/>
+        <ImageView
+            android:id="@+id/close"
+            android:layout_height="24dp"
+            android:layout_width="24dp"
+            android:src="@drawable/close_icon"
+            android:layout_gravity="center"/>
 
     </LinearLayout>
 
     <RatingBar
-        android:id="@+id/rating"
+        android:id="@+id/ratingBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:theme="@style/RatingBar" />
+        android:theme="@style/RatingBar"
+        android:stepSize="1"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/commentInput"
         style="@style/InputLayoutStyle"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="match_parent"
         android:layout_marginHorizontal="16dp"
         android:hint="@string/comment"
         android:textColorHint="@color/primary"
@@ -73,6 +71,9 @@
         android:textAllCaps="false"
         android:textSize="17sp"
         android:textStyle="bold"
+        android:enabled="false"
+        android:textColor="@color/submit_button_text_color"
+        android:backgroundTint="@color/submit_button_background_color"
         app:cornerRadius="100dp" />
 
 

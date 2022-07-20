@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import shows.kristijanmitrov.infinumacademyshows.databinding.ActivityShowsBinding
@@ -38,15 +36,14 @@ class ShowsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityShowsBinding.inflate(layoutInflater)
-
         setContentView(binding.root)
+
         initShowRecycler()
         initShowHideButton()
-
     }
 
     private fun initShowRecycler() {
-        adapter = ShowsAdapter(shows) {show ->
+        adapter = ShowsAdapter(shows) { show ->
             val intent = ShowDetailsActivity.buildIntent(this)
             intent.putExtra("id", show.id)
             intent.putExtra("title", show.title)
@@ -55,19 +52,20 @@ class ShowsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.showsRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.showsRecycler.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         binding.showsRecycler.adapter = adapter
     }
 
     private fun initShowHideButton() {
-        binding.showHideButton.setOnClickListener{
-            if(adapter.itemCount == 0){
+        binding.showHideButton.setOnClickListener {
+            if (adapter.itemCount == 0) {
                 adapter.setShows(shows)
                 binding.showsRecycler.isVisible = true
                 binding.emptyStateLayout.isVisible = false
                 binding.showHideButton.text = "Hide"
-            }else{
+            } else {
                 adapter.setShows(emptyList())
                 binding.showsRecycler.isVisible = false
                 binding.emptyStateLayout.isVisible = true
