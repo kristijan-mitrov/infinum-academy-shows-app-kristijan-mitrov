@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,6 +8,9 @@
     tools:context=".ShowDetailsActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,6 +22,9 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.core.widget.NestedScrollView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -87,36 +93,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/gray" />
 
-            <LinearLayout
-                android:id="@+id/reviewPanel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/reviewText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:text="@string/d_reviews_2f_average"
-                    android:textColor="@color/gray" />
-
-                <RatingBar
-                    android:id="@+id/ratingBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="?android:attr/ratingBarStyleIndicator"
-                    android:layout_marginHorizontal="16dp"
-                    tools:rating="4"
-                    android:isIndicator="true"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/reviewsRecycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:listitem="@layout/view_review_item" />
-            </LinearLayout>
+            <include android:id="@+id/reviewContent" layout="@layout/review_content"/>
 
 
         </LinearLayout>
@@ -124,8 +101,19 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 
     <com.google.android.material.button.MaterialButton
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/writeReviewButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -136,4 +124,4 @@
         app:cornerRadius="50dp" />
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
