@@ -7,7 +7,6 @@
 
     <style name="Widget.Theme.InfinumAcademyShows.MyView" parent="">
         <item name="android:background">@color/gray_400</item>
-        <item name="exampleColor">@color/light_blue_400</item>
     </style>
     <style name="RatingBar" parent="Theme.AppCompat">
         <item name="colorControlNormal">@color/primary</item>

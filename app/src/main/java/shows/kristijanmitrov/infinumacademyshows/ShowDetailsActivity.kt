@@ -14,10 +14,7 @@ import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBind
 import shows.kristijanmitrov.ui.ReviewAdapter
 
 import android.widget.RatingBar.OnRatingBarChangeListener
-
-
-
-
+import shows.kristijanmitrov.model.Show
 
 class ShowDetailsActivity : AppCompatActivity() {
 
@@ -27,43 +24,52 @@ class ShowDetailsActivity : AppCompatActivity() {
         }
     }
 
+
     private lateinit var binding: ActivityShowDetailsBinding
     private lateinit var adapter: ReviewAdapter
-    private lateinit var reviewTextTemplate: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityShowDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        reviewTextTemplate = binding.reviewText.text.toString()
-        val title = intent.extras?.getString("title")
-        val image = intent.extras?.getInt("image")
-        val descriptionText = intent.extras?.getString("descriptionText")
-
-        binding.title.text = title
-        image?.let { binding.image.setImageResource(it) }
-        binding.descriptionText.text = descriptionText
-
-        binding.nestedScrollView.viewTreeObserver.addOnScrollChangedListener {
-            val scrollBounds = Rect()
-            binding.nestedScrollView.getHitRect(scrollBounds)
-            if (binding.title.getLocalVisibleRect(scrollBounds)) {
-                binding.toolbar.title = null
-            } else {
-                binding.toolbar.title = title
-            }
-        }
-
-
-
-        binding.toolbar.setNavigationOnClickListener{
-            finish()
-        }
-
+        initToolbar()
+        initShowInformation()
         initReviewRecycler()
         initWriteReviewButton()
     }
+
+    private fun initToolbar() = with(binding) {
+        //title
+        nestedScrollView.viewTreeObserver.addOnScrollChangedListener {
+            val scrollBounds = Rect()
+            nestedScrollView.getHitRect(scrollBounds)
+            if (title.getLocalVisibleRect(scrollBounds)) {
+                toolbar.title = null
+            } else {
+                toolbar.title = binding.title.text
+            }
+        }
+
+        //back
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
+    }
+
+
+    private fun initShowInformation() {
+        val show = intent.getParcelableExtra<Show>("show")
+
+        show?.let {
+            with(binding) {
+                title.text = show.title
+                image.setImageResource(show.image)
+                descriptionText.text = show.descriptionText
+            }
+        }
+    }
+
 
     private fun initWriteReviewButton() {
         binding.writeReviewButton.setOnClickListener {
@@ -77,27 +83,38 @@ class ShowDetailsActivity : AppCompatActivity() {
         val bottomSheetBinding = DialogAddReviewBinding.inflate(layoutInflater)
         dialog.setContentView(bottomSheetBinding.root)
 
+        //init rating
         bottomSheetBinding.ratingBar.onRatingBarChangeListener =
             OnRatingBarChangeListener { _, rating, _ ->
                 bottomSheetBinding.submitButton.isEnabled = rating > 0
             }
 
+        //init submit button
         bottomSheetBinding.submitButton.setOnClickListener {
-            adapter.addReview(
-                bottomSheetBinding.commentText.text.toString(),
-                bottomSheetBinding.ratingBar.rating.toInt()
-            )
+            val username = intent.extras?.getString("username")
 
-            val numOfReviews = adapter.itemCount
-            val averageRating = adapter.getAverage()
-            val reviewTextStr = String.format(reviewTextTemplate, numOfReviews, averageRating )
-            binding.reviewText.text = reviewTextStr
-            binding.ratingBar.rating = averageRating
-            binding.emptyStateLayout.isVisible = false
-            binding.reviewPanel.isVisible = true
+            username?.let { _username ->
+                adapter.addReview(
+                    _username,
+                    bottomSheetBinding.commentText.text.toString(),
+                    bottomSheetBinding.ratingBar.rating.toInt()
+                )
+
+                val numOfReviews = adapter.itemCount
+                val averageRating = adapter.getAverage()
+                val reviewTextStr = String.format(getString(R.string.d_reviews_2f_average), numOfReviews, averageRating )
+                with(binding) {
+                    reviewText.text = reviewTextStr
+                    ratingBar.rating = averageRating
+                    emptyStateLayout.isVisible = false
+                    reviewPanel.isVisible = true
+                }
+            }
+
             dialog.dismiss()
         }
 
+        //init close icon
         bottomSheetBinding.close.setOnClickListener{
             dialog.dismiss()
         }
@@ -107,7 +124,7 @@ class ShowDetailsActivity : AppCompatActivity() {
 
 
     private fun initReviewRecycler() {
-        adapter = ReviewAdapter(emptyList())
+        adapter = ReviewAdapter()
 
         binding.reviewsRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

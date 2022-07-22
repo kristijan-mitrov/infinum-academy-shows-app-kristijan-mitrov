@@ -23,4 +23,5 @@
     <string name="comment">Comment</string>
     <string name="submit">Submit</string>
     <string name="d_reviews_2f_average">%d REVIEWS, %.2f AVERAGE</string>
+    <string name="show">Show</string>
 </resources>

@@ -7,7 +7,7 @@ import shows.kristijanmitrov.infinumacademyshows.databinding.ViewReviewItemBindi
 import shows.kristijanmitrov.model.Review
 
 class ReviewAdapter(
-    private var items: List<Review>,
+    private val items: MutableList<Review> = ArrayList(),
 ): RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>(){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
@@ -21,25 +21,21 @@ class ReviewAdapter(
 
     override fun getItemCount() = items.count()
 
-    fun addReview(commentText: String, rating: Int) {
-        items = items + Review( "kristijan.mitrov", rating, commentText)
+    fun addReview(username: String, commentText: String, rating: Int) {
+        val review = Review( username, rating, commentText)
+        items.add(review)
         notifyItemInserted(items.lastIndex)
     }
 
-    fun getAverage(): Float {
-        var sum = 0f
-        for(item in items)
-            sum += item.ratingValue
-        return sum/itemCount
-    }
+    fun getAverage() = items.sumOf { it.ratingValue }/itemCount.toFloat()
 
 
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Review) {
-            binding.user.text = item.user
-            binding.descriptionText.text = item.descriptionText
-            binding.ratingValue.text = item.ratingValue.toString()
+        fun bind(item: Review) = with(binding){
+            username.text = item.username
+            descriptionText.text = item.descriptionText
+            ratingValue.text = item.ratingValue.toString()
         }
     }
 

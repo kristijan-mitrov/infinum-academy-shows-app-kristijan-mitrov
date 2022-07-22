@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import shows.kristijanmitrov.infinumacademyshows.databinding.ActivityShowsBinding
@@ -18,18 +19,6 @@ class ShowsActivity : AppCompatActivity() {
         }
     }
 
-    //Shows List
-    private val shows = listOf(
-        Show("1", "Stranger Things", "desc", R.drawable.stranger_things),
-        Show("2", "Dark", "desc", R.drawable.dark),
-        Show("3", "How I Met Your Mother", "desc", R.drawable.himym),
-        Show("4", "Game of Thrones", "desc", R.drawable.game_of_thrones),
-        Show("5", "Sex Education", "desc", R.drawable.sex_education),
-        Show("6", "Young Royals", "desc", R.drawable.young_royals),
-        Show("7", "The Crown", "desc", R.drawable.the_crown),
-        Show("8", "The Queens Gambit", "desc", R.drawable.the_queens_gambit)
-    )
-
     private lateinit var binding: ActivityShowsBinding
     private lateinit var adapter: ShowsAdapter
 
@@ -43,14 +32,16 @@ class ShowsActivity : AppCompatActivity() {
     }
 
     private fun initShowRecycler() {
-        adapter = ShowsAdapter(shows) { show ->
+        val username = intent.extras?.getString("username")
+
+        adapter = ShowsAdapter() { show ->
             val intent = ShowDetailsActivity.buildIntent(this)
-            intent.putExtra("id", show.id)
-            intent.putExtra("title", show.title)
-            intent.putExtra("image", show.image)
-            intent.putExtra("descriptionText", show.descriptionText)
+            intent.putExtra("show", show)
+            intent.putExtra("username", username)
             startActivity(intent)
         }
+
+        adapter.setShows()
 
         binding.showsRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -58,18 +49,18 @@ class ShowsActivity : AppCompatActivity() {
         binding.showsRecycler.adapter = adapter
     }
 
-    private fun initShowHideButton() {
-        binding.showHideButton.setOnClickListener {
+    private fun initShowHideButton() = with(binding) {
+        binding.showHideButton.setOnClickListener{
             if (adapter.itemCount == 0) {
-                adapter.setShows(shows)
-                binding.showsRecycler.isVisible = true
-                binding.emptyStateLayout.isVisible = false
-                binding.showHideButton.text = "Hide"
+                adapter.setShows()
+                showsRecycler.isVisible = true
+                emptyStateLayout.isVisible = false
+                showHideButton.text = getString(R.string.hide)
             } else {
-                adapter.setShows(emptyList())
-                binding.showsRecycler.isVisible = false
-                binding.emptyStateLayout.isVisible = true
-                binding.showHideButton.text = "Show"
+                adapter.clearShows()
+                showsRecycler.isVisible = false
+                emptyStateLayout.isVisible = true
+                showHideButton.text = getString(R.string.show)
             }
         }
     }
