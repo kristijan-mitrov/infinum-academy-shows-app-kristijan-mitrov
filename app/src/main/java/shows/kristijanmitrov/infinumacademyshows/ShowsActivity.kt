@@ -4,11 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import shows.kristijanmitrov.infinumacademyshows.databinding.ActivityShowsBinding
-import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.ui.ShowsAdapter
 
 class ShowsActivity : AppCompatActivity() {
@@ -34,7 +32,7 @@ class ShowsActivity : AppCompatActivity() {
     private fun initShowRecycler() {
         val username = intent.extras?.getString("username")
 
-        adapter = ShowsAdapter() { show ->
+        adapter = ShowsAdapter { show ->
             val intent = ShowDetailsActivity.buildIntent(this)
             intent.putExtra("show", show)
             intent.putExtra("username", username)

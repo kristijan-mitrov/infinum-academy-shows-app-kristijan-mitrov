@@ -1,29 +1,35 @@
 package shows.kristijanmitrov.infinumacademyshows
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
-import shows.kristijanmitrov.infinumacademyshows.databinding.ActivityLoginBinding
+import androidx.navigation.fragment.findNavController
+import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
 
-class LoginActivity : AppCompatActivity() {
+class LoginFragment : Fragment() {
 
-    private lateinit var binding: ActivityLoginBinding
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
 
-    private fun check() {
-        if (!(binding.emailInput.error != null || binding.emailText.text == null || binding.passwordInput.error != null || binding.passwordText.text == null))
-            binding.loginButton.isEnabled = true
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initEmailInput()
         initPasswordInput()
         initLoginButton()
+    }
+
+    private fun check() {
+        if (!(binding.emailInput.error != null || binding.emailText.text == null || binding.passwordInput.error != null || binding.passwordText.text == null))
+            binding.loginButton.isEnabled = true
     }
 
     private fun initEmailInput() {
@@ -53,12 +59,18 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initLoginButton() {
+
         binding.loginButton.setOnClickListener {
             val username = binding.emailText.text.toString().split("@")[0]
-            val intent = ShowsActivity.buildIntent(this)
-            intent.putExtra("username", username)
-            startActivity(intent)
 
+            val directions = LoginFragmentDirections.toShowsFragment(username)
+
+            findNavController().navigate(directions)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -29,7 +29,6 @@ class ReviewAdapter(
 
     fun getAverage() = items.sumOf { it.ratingValue }/itemCount.toFloat()
 
-
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Review) = with(binding){

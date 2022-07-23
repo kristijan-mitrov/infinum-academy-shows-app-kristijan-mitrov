@@ -24,7 +24,6 @@ class ShowDetailsActivity : AppCompatActivity() {
         }
     }
 
-
     private lateinit var binding: ActivityShowDetailsBinding
     private lateinit var adapter: ReviewAdapter
 
@@ -57,7 +56,6 @@ class ShowDetailsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun initShowInformation() {
         val show = intent.getParcelableExtra<Show>("show")
 
@@ -69,7 +67,6 @@ class ShowDetailsActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun initWriteReviewButton() {
         binding.writeReviewButton.setOnClickListener {
