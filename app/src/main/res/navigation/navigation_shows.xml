@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/showsNavigation"
+    app:startDestination="@id/showsFragment">
+    <fragment
+        android:id="@+id/showsFragment"
+        android:name="shows.kristijanmitrov.infinumacademyshows.ShowsFragment"
+        android:label="ShowsFragment">
+        <action
+            android:id="@+id/toShowDetailsFragment"
+            app:destination="@id/showDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <argument
+            android:name="username"
+            app:argType="string"/>
+    </fragment>
+    <fragment
+        android:id="@+id/showDetailsFragment"
+        android:name="shows.kristijanmitrov.infinumacademyshows.ShowDetailsFragment"
+        android:label="fragment_show_details" tools:layout="@layout/fragment_show_details">
+        <argument
+            android:name="username"
+            app:argType="string"/>
+        <argument
+            android:name="show"
+            app:argType="shows.kristijanmitrov.model.Show"/>
+
+    </fragment>
+</navigation>

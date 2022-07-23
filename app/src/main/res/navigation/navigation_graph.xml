@@ -10,35 +10,15 @@
         android:label="LoginFragment">
         <action
             android:id="@+id/toShowsFragment"
-            app:destination="@id/showsFragment"/>
+            app:destination="@id/showsNavigation"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            <argument
+                android:name="username"
+                app:argType="string"/>
+        </action>
     </fragment>
-    <fragment
-        android:id="@+id/showsFragment"
-        android:name="shows.kristijanmitrov.infinumacademyshows.ShowsFragment"
-        android:label="ShowsFragment">
-        <action
-            android:id="@+id/toShowDetailsFragment"
-            app:destination="@id/showDetailsFragment"/>
-        <action
-            android:id="@+id/toLoginFragment"
-            app:destination="@id/loginFragment"/>
-        <argument
-            android:name="username"
-            app:argType="string"/>
-    </fragment>
-    <fragment
-        android:id="@+id/showDetailsFragment"
-        android:name="shows.kristijanmitrov.infinumacademyshows.ShowDetailsFragment"
-        android:label="fragment_show_details" tools:layout="@layout/fragment_show_details">
-        <action
-            android:id="@+id/toShowsFragment"
-            app:destination="@id/showsFragment"/>
-        <argument
-            android:name="username"
-            app:argType="string"/>
-        <argument
-            android:name="show"
-            app:argType="shows.kristijanmitrov.model.Show"/>
-
-    </fragment>
+    <include app:graph="@navigation/navigation_shows" android:id="@+id/showsNavigation" />
 </navigation>
