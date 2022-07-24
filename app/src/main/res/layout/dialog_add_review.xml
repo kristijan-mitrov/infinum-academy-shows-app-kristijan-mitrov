@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/write_a_review"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_height="24dp"
+            android:layout_width="24dp"
+            android:src="@drawable/close_icon"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:theme="@style/RatingBar"
+        android:stepSize="1"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/commentInput"
+        style="@style/InputLayoutStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="16dp"
+        android:hint="@string/comment"
+        android:textColorHint="@color/primary"
+
+        app:hintTextColor="@color/primary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/commentText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:singleLine="true"
+            android:textColor="@color/primary" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/submitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/submit"
+        android:textAllCaps="false"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:enabled="false"
+        android:textColor="@color/submit_button_text_color"
+        android:backgroundTint="@color/submit_button_background_color"
+        app:cornerRadius="100dp" />
+
+
+</LinearLayout>

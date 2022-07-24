@@ -86,7 +86,7 @@
         app:endIconMode="password_toggle"
         app:endIconTint="@color/white"
         app:errorEnabled="true"
-        style="@style/LoginTextInputLayoutStyle" >
+        style="@style/InputLayoutStyle" >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordText"
@@ -111,7 +111,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/passwordInput"
         app:errorEnabled="true"
-        style="@style/LoginTextInputLayoutStyle" >
+        style="@style/InputLayoutStyle" >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailText"
