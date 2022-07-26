@@ -1,5 +1,7 @@
 package shows.kristijanmitrov.infinumacademyshows
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,9 +15,14 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowDetailsBinding
+import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.ui.ReviewAdapter
+
+private const val USER = "USER"
 
 class ShowDetailsFragment : Fragment() {
 
@@ -23,6 +30,15 @@ class ShowDetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: ReviewAdapter
     private val args by navArgs<ShowDetailsFragmentArgs>()
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var user: User
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedPreferences = requireContext().getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE)
+        user = sharedPreferences.getUser(USER, null)!!
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentShowDetailsBinding.inflate(inflater, container, false)
@@ -86,27 +102,28 @@ class ShowDetailsFragment : Fragment() {
         //init submit button
         bottomSheetBinding.submitButton.setOnClickListener {
 
-            adapter.addReview(
-                args.username,
-                bottomSheetBinding.commentText.text.toString(),
-                bottomSheetBinding.ratingBar.rating.toInt()
-            )
+            user.username?.let { username ->
+                adapter.addReview(
+                    username,
+                    bottomSheetBinding.commentText.text.toString(),
+                    bottomSheetBinding.ratingBar.rating.toInt()
+                )
 
-            val numOfReviews = adapter.itemCount
-            val averageRating = adapter.getAverage()
-            val reviewTextStr = getString(R.string.d_reviews_2f_average, numOfReviews, averageRating)
-            with(binding) {
-                reviewText.text = reviewTextStr
-                ratingBar.rating = averageRating
-                emptyStateLayout.isVisible = false
-                reviewPanel.isVisible = true
+                val numOfReviews = adapter.itemCount
+                val averageRating = adapter.getAverage()
+                val reviewTextStr = getString(R.string.d_reviews_2f_average, numOfReviews, averageRating)
+                with(binding) {
+                    reviewText.text = reviewTextStr
+                    ratingBar.rating = averageRating
+                    emptyStateLayout.isVisible = false
+                    reviewPanel.isVisible = true
+                }
+                dialog?.dismiss()
             }
-
-            dialog?.dismiss()
         }
 
         //init close icon
-        bottomSheetBinding.close.setOnClickListener{
+        bottomSheetBinding.close.setOnClickListener {
             dialog?.dismiss()
         }
 
@@ -123,6 +140,16 @@ class ShowDetailsFragment : Fragment() {
         binding.reviewsRecycler.addItemDecoration(
             DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         )
+    }
+
+    private fun SharedPreferences.getUser(s: String, default: String?): User? {
+        val userJson = getString(s, default)
+        return userJson?.let { Json.decodeFromString(userJson) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

@@ -1,18 +1,37 @@
 package shows.kristijanmitrov.infinumacademyshows
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.edit
 import androidx.core.widget.doOnTextChanged
 import androidx.navigation.fragment.findNavController
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
+import shows.kristijanmitrov.model.User
+import android.content.SharedPreferences
+import androidx.fragment.app.viewModels
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import shows.kristijanmitrov.ViewModel.LoginViewModel
+
+private const val REMEMBER_ME = "REMEMBER_ME"
+private const val USER = "USER"
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private val viewModel by viewModels<LoginViewModel>()
+    private lateinit var sharedPreferences: SharedPreferences
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedPreferences = requireContext().getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -21,6 +40,14 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if(sharedPreferences.getBoolean(REMEMBER_ME, false)){
+
+            val directions = LoginFragmentDirections.toShowsFragment()
+            findNavController().navigate(directions)
+        }
+
+
 
         initEmailInput()
         initPasswordInput()
@@ -62,11 +89,23 @@ class LoginFragment : Fragment() {
 
         binding.loginButton.setOnClickListener {
             val username = binding.emailText.text.toString().split("@")[0]
+            val user = User(username, binding.emailText.text.toString(), R.drawable.squidward)
 
-            val directions = LoginFragmentDirections.toShowsFragment(username)
+            sharedPreferences.edit {
+                if (binding.rememberMeCheckbox.isChecked) putBoolean(REMEMBER_ME, true)
+                putUser(USER, user)
+            }
+
+            val directions = LoginFragmentDirections.toShowsFragment()
 
             findNavController().navigate(directions)
         }
+    }
+
+    private fun SharedPreferences.Editor.putUser(s: String, user: User?) {
+        // TODO: When not checking REMEMBER ME should this be set to null, does this release the memory or does it still use it?
+        val json = if (user!=null) Json.encodeToString(user) else null
+        putString(s, json)
     }
 
     override fun onDestroyView() {
@@ -74,3 +113,5 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 }
+
+

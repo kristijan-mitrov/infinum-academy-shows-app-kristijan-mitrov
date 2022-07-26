@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".ShowsActivity">
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:background="@color/white">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            app:cardCornerRadius="100dp"
+            android:elevation="16dp">
+
+            <ImageView
+                android:id="@+id/profilePhoto"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                tools:src="@drawable/squidward"
+                android:scaleType="centerCrop"/>
+
+        </androidx.cardview.widget.CardView>
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp"
+        android:layout_margin="16dp"
         android:orientation="horizontal">
 
         <TextView
@@ -22,12 +46,12 @@
             android:text="@string/shows"
             android:textColor="@color/black"
             android:textSize="40sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/showHideButton"
@@ -35,22 +59,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/hide"
-            app:cornerRadius="100dp" />
-
-        <ImageView
-            android:id="@+id/logoutIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:src="@drawable/logout_icon"
-            android:layout_margin="8dp" />
+            app:cornerRadius="100dp"
+            android:elevation="16dp"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/showsRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/view_show_item" />
+        tools:listitem="@layout/view_show_item"/>
 
     <LinearLayout
         android:id="@+id/emptyStateLayout"
@@ -64,14 +81,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="184dp"
-            android:src="@drawable/ellipse" />
+            android:src="@drawable/ellipse"/>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="-84dp"
-            android:src="@drawable/broken_camera" />
+            android:src="@drawable/broken_camera"/>
 
         <TextView
             android:id="@+id/emptyStateText"
@@ -79,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
             android:text="@string/your_shows_are_not_showing_get_it"
-            android:textAlignment="center" />
+            android:textAlignment="center"/>
     </LinearLayout>
 
 </LinearLayout>

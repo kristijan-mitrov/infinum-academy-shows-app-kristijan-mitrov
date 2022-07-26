@@ -3,10 +3,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity"
     android:background="@color/primary">
 
     <ImageView
@@ -17,16 +15,16 @@
         android:contentDescription="@string/illustration"
         android:src="@drawable/top_left_illustration"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/topRightIllustration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/top_right_illustration"
-        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/illustration"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@string/illustration"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/shows"
@@ -39,7 +37,7 @@
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/triangle"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/triangle"
@@ -50,43 +48,56 @@
         android:contentDescription="@string/illustration"
         android:src="@drawable/triangle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/login"
         android:textColor="@color/button_text_color"
         android:textAllCaps="false"
         android:textStyle="bold"
         android:textSize="17sp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginBottom="16dp"
         android:enabled="false"
         android:backgroundTint="@color/button_background_color"
+        app:cornerRadius="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:cornerRadius="100dp"
         />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordInput"
-        android:hint="@string/password"
-        android:textColorHint="@color/white"
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/rememberMeCheckbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
         android:layout_marginBottom="80dp"
-        app:hintTextColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@color/white"
+        android:text="@string/remember_me"
+        android:backgroundTint="@color/white"
+        android:buttonTint="@color/white"
         app:layout_constraintBottom_toTopOf="@id/loginButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordInput"
+        style="@style/InputLayoutStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:hint="@string/password"
+        android:textColorHint="@color/white"
         app:endIconMode="password_toggle"
         app:endIconTint="@color/white"
         app:errorEnabled="true"
-        style="@style/InputLayoutStyle" >
+        app:hintTextColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/rememberMeCheckbox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordText"
@@ -94,24 +105,24 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:textColor="@color/white"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailInput"
-        android:hint="@string/email"
-        android:textColorHint="@color/white"
+        style="@style/InputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
         android:layout_marginBottom="10dp"
-        app:hintTextColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/passwordInput"
+        android:hint="@string/email"
+        android:textColorHint="@color/white"
         app:errorEnabled="true"
-        style="@style/InputLayoutStyle" >
+        app:hintTextColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/passwordInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailText"
@@ -132,9 +143,9 @@
         android:text="@string/in_order_to_continue_please_log_in"
         android:textColor="@color/white"
         android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@id/emailInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/emailInput"
         />
 
     <TextView
@@ -147,8 +158,8 @@
         android:textColor="@color/white"
         android:textSize="34sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/descriptionText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/descriptionText" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

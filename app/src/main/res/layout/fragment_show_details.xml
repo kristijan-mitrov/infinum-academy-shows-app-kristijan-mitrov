@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".ShowDetailsActivity">
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -15,9 +14,7 @@
         android:elevation="4dp"
         android:background="@color/white"
         app:navigationIcon="?attr/homeAsUpIndicator"
-        tools:title="@string/stranger_things">
-
-    </com.google.android.material.appbar.MaterialToolbar>
+        tools:title="@string/stranger_things"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"

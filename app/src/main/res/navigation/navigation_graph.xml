@@ -7,18 +7,57 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="shows.kristijanmitrov.infinumacademyshows.LoginFragment"
-        android:label="LoginFragment">
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/toShowsFragment"
             app:destination="@id/showsNavigation"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right">
-            <argument
-                android:name="username"
-                app:argType="string"/>
+            app:popExitAnim="@anim/slide_out_right"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/navigation_graph"
+            app:popUpToInclusive="true">
         </action>
     </fragment>
-    <include app:graph="@navigation/navigation_shows" android:id="@+id/showsNavigation" />
+    <navigation
+        android:id="@+id/showsNavigation"
+        app:startDestination="@id/showsFragment">
+        <fragment
+            android:id="@+id/showsFragment"
+            android:name="shows.kristijanmitrov.infinumacademyshows.ShowsFragment"
+            android:label="ShowsFragment"
+            tools:layout="@layout/fragment_shows">
+            <action
+                android:id="@+id/toShowDetailsFragment"
+                app:destination="@id/showDetailsFragment"
+                app:enterAnim="@anim/slide_in_right"
+                app:exitAnim="@anim/slide_out_left"
+                app:popEnterAnim="@anim/slide_in_left"
+                app:popExitAnim="@anim/slide_out_right"/>
+            <action
+                android:id="@+id/toLoginFragment"
+                app:destination="@id/loginFragment"
+                app:launchSingleTop="true"
+                app:popUpTo="@+id/navigation_graph"
+                app:popUpToInclusive="true"
+                app:enterAnim="@anim/slide_in_left"
+                app:exitAnim="@anim/slide_out_right"
+                app:popEnterAnim="@anim/slide_in_right"
+                app:popExitAnim="@anim/slide_out_left"
+                />
+
+        </fragment>
+        <fragment
+            android:id="@+id/showDetailsFragment"
+            android:name="shows.kristijanmitrov.infinumacademyshows.ShowDetailsFragment"
+            android:label="fragment_show_details"
+            tools:layout="@layout/fragment_show_details">
+            <argument
+                android:name="show"
+                app:argType="shows.kristijanmitrov.model.Show"/>
+
+        </fragment>
+    </navigation>
 </navigation>
