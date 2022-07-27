@@ -81,7 +81,7 @@ class ShowsFragment : Fragment() {
     }
 
     private fun initToolbar() {
-        binding.profilePhoto.setBackgroundResource(user.profilePhoto)
+//        binding.profilePhoto.setBackgroundResource(user.profilePhoto)
 
         binding.profilePhoto.setOnClickListener {
 
@@ -97,7 +97,7 @@ class ShowsFragment : Fragment() {
 
         //init information
         bottomSheetBinding.email.text = user.email
-        bottomSheetBinding.profilePhoto.setBackgroundResource(user.profilePhoto)
+//        bottomSheetBinding.profilePhoto.setBackgroundResource(user.profilePhoto)
 
         //init change profile photo
         bottomSheetBinding.changeProfilePhotoButton.setOnClickListener {

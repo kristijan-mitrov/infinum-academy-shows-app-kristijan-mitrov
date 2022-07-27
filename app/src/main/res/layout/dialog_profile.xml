@@ -37,7 +37,7 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:contentDescription="@string/profile_photo"
-                tools:src="@drawable/squidward"
+                android:src="@drawable/squidward"
                 android:scaleType="centerCrop"/>
         </androidx.cardview.widget.CardView>
     </androidx.cardview.widget.CardView>

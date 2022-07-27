@@ -10,18 +10,18 @@ import kotlinx.serialization.Serializable
 class User(
     @SerialName("username") val username: String?,
     @SerialName("email") val email: String?,
-    @SerialName("profilePhoto") @DrawableRes val profilePhoto: Int
+    @SerialName("profilePhoto") val profilePhoto: String?
     ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readString(),
-        parcel.readInt()
+        parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(username)
         parcel.writeString(email)
-        parcel.writeInt (profilePhoto)
+        parcel.writeString (profilePhoto)
     }
 
     override fun describeContents(): Int {

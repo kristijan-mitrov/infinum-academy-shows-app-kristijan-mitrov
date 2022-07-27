@@ -10,12 +10,12 @@ import androidx.core.content.edit
 import androidx.core.widget.doOnTextChanged
 import androidx.navigation.fragment.findNavController
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
-import shows.kristijanmitrov.model.User
 import android.content.SharedPreferences
 import androidx.fragment.app.viewModels
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import shows.kristijanmitrov.ViewModel.LoginViewModel
+import shows.kristijanmitrov.model.User
+import shows.kristijanmitrov.viewModel.LoginViewModel
 
 private const val REMEMBER_ME = "REMEMBER_ME"
 private const val USER = "USER"
@@ -42,46 +42,31 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if(sharedPreferences.getBoolean(REMEMBER_ME, false)){
-
             val directions = LoginFragmentDirections.toShowsFragment()
             findNavController().navigate(directions)
         }
 
+        //Observers
+        viewModel.isLoginButtonEnabled.observe(viewLifecycleOwner){ isLoginButtonEnabled ->
+            binding.loginButton.isEnabled = isLoginButtonEnabled
+        }
+        viewModel.emailError.observe(viewLifecycleOwner){ emailError ->
+            binding.emailInput.error = emailError
+        }
+        viewModel.passwordError.observe(viewLifecycleOwner){ passwordError ->
+            binding.passwordInput.error = passwordError
+        }
 
-
-        initEmailInput()
-        initPasswordInput()
+        initListeners()
         initLoginButton()
     }
 
-    private fun check() {
-        if (!(binding.emailInput.error != null || binding.emailText.text == null || binding.passwordInput.error != null || binding.passwordText.text == null))
-            binding.loginButton.isEnabled = true
-    }
-
-    private fun initEmailInput() {
+    private fun initListeners() {
         binding.emailText.doOnTextChanged { text, _, _, _ ->
-            if (text.toString().matches(Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+\$"))) {
-                binding.emailInput.error = null
-                check()
-            } else {
-                binding.emailInput.error = "Email must be in correct format!"
-                binding.loginButton.isEnabled = false
-            }
+            viewModel.checkLoginValidity(text.toString(), binding.passwordText.text.toString())
         }
-    }
-
-    private fun initPasswordInput() {
         binding.passwordText.doOnTextChanged { text, _, _, _ ->
-            text?.let {
-                if (it.length < 6) {
-                    binding.passwordInput.error = "Password must be at least 6 characters long!"
-                    binding.loginButton.isEnabled = false
-                } else {
-                    binding.passwordInput.error = null
-                    check()
-                }
-            }
+            viewModel.checkLoginValidity(binding.emailText.text.toString(), text.toString())
         }
     }
 
@@ -89,8 +74,8 @@ class LoginFragment : Fragment() {
 
         binding.loginButton.setOnClickListener {
             val username = binding.emailText.text.toString().split("@")[0]
-            val user = User(username, binding.emailText.text.toString(), R.drawable.squidward)
-
+            val email = binding.emailText.text.toString()
+            val user = User(username, email, null)
             sharedPreferences.edit {
                 if (binding.rememberMeCheckbox.isChecked) putBoolean(REMEMBER_ME, true)
                 putUser(USER, user)
@@ -102,9 +87,8 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun SharedPreferences.Editor.putUser(s: String, user: User?) {
-        // TODO: When not checking REMEMBER ME should this be set to null, does this release the memory or does it still use it?
-        val json = if (user!=null) Json.encodeToString(user) else null
+    private fun SharedPreferences.Editor.putUser(s: String, user: User) {
+        val json = Json.encodeToString(user)
         putString(s, json)
     }
 
