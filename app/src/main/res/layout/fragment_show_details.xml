@@ -13,8 +13,17 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:background="@color/white"
-        app:navigationIcon="?attr/homeAsUpIndicator"
-        tools:title="@string/stranger_things"/>
+        app:navigationIcon="?attr/homeAsUpIndicator">
+        <TextView
+            android:id="@+id/toolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textColor="@color/dark_gray"
+            tools:text="@string/stranger_things"
+            android:visibility="invisible"
+            />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"

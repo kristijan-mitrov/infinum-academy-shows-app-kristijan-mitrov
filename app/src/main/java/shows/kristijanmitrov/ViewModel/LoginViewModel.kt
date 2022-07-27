@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 class LoginViewModel : ViewModel() {
 
     private val _isLoginButtonEnabled = MutableLiveData(false)
-    private val _emailError:MutableLiveData<String> = MutableLiveData("")
-    private val _passwordError:MutableLiveData<String> = MutableLiveData("")
+    private val _emailError:MutableLiveData<String> = MutableLiveData()
+    private val _passwordError:MutableLiveData<String> = MutableLiveData()
 
     val isLoginButtonEnabled: LiveData<Boolean> = _isLoginButtonEnabled
     val emailError: LiveData<String> = _emailError

@@ -1,10 +1,12 @@
 package shows.kristijanmitrov.ui
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import shows.kristijanmitrov.infinumacademyshows.databinding.ViewReviewItemBinding
 import shows.kristijanmitrov.model.Review
+import shows.kristijanmitrov.model.User
 
 class ReviewAdapter(
     private val items: MutableList<Review> = ArrayList(),
@@ -21,8 +23,8 @@ class ReviewAdapter(
 
     override fun getItemCount() = items.count()
 
-    fun addReview(username: String, commentText: String, rating: Int) {
-        val review = Review( username, rating, commentText)
+    fun addReview(user: User, commentText: String, rating: Int) {
+        val review = Review(user, rating, commentText)
         items.add(review)
         notifyItemInserted(items.lastIndex)
     }
@@ -32,7 +34,11 @@ class ReviewAdapter(
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Review) = with(binding){
-            username.text = item.username
+            item.user.profilePhoto?.let{
+                val profilePhotoUri = Uri.parse(item.user.profilePhoto)
+                profilePhoto.setImageURI(profilePhotoUri)
+            }
+            username.text = item.user.username
             descriptionText.text = item.descriptionText
             ratingValue.text = item.ratingValue.toString()
         }

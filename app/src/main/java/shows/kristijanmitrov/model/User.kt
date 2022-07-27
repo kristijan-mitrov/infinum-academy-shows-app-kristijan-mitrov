@@ -2,15 +2,14 @@ package shows.kristijanmitrov.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.DrawableRes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 class User(
-    @SerialName("username") val username: String?,
-    @SerialName("email") val email: String?,
-    @SerialName("profilePhoto") val profilePhoto: String?
+    @SerialName("username") var username: String?,
+    @SerialName("email") var email: String?,
+    @SerialName("profilePhoto") var profilePhoto: String?
     ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
