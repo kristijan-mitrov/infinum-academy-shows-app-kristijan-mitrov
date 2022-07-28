@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph" app:startDestination="@id/loginFragment">
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="shows.kristijanmitrov.infinumacademyshows.LoginFragment"
+        android:label="LoginFragment">
+        <action
+            android:id="@+id/toShowsFragment"
+            app:destination="@id/showsNavigation"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            <argument
+                android:name="username"
+                app:argType="string"/>
+        </action>
+    </fragment>
+    <include app:graph="@navigation/navigation_shows" android:id="@+id/showsNavigation" />
+</navigation>

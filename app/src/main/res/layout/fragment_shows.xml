@@ -36,6 +36,14 @@
             android:layout_gravity="center"
             android:text="@string/hide"
             app:cornerRadius="100dp" />
+
+        <ImageView
+            android:id="@+id/logoutIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@drawable/logout_icon"
+            android:layout_margin="8dp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

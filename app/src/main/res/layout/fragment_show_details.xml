@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -39,7 +40,7 @@
                 android:textColor="@color/black"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                tools:text="@string/stranger_things" />
+                tools:text="@string/stranger_things"/>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/imageCard"
@@ -54,7 +55,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    tools:src="@drawable/stranger_things" />
+                    tools:src="@drawable/stranger_things"/>
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -64,7 +65,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
                 android:textSize="20sp"
-                tools:text="@string/test_string" />
+                tools:text="@string/test_string"/>
 
             <TextView
                 android:id="@+id/reviews"
@@ -75,7 +76,7 @@
                 android:text="@string/reviews"
                 android:textColor="@color/black"
                 android:textSize="28sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/emptyStateLayout"
@@ -85,7 +86,7 @@
                 android:layout_marginTop="32dp"
                 android:text="@string/no_reviews_yet"
                 android:textAlignment="center"
-                android:textColor="@color/gray" />
+                android:textColor="@color/gray"/>
 
             <LinearLayout
                 android:id="@+id/reviewPanel"
@@ -100,30 +101,27 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
                     android:text="@string/d_reviews_2f_average"
-                    android:textColor="@color/gray" />
+                    android:textColor="@color/gray"/>
 
                 <RatingBar
                     android:id="@+id/ratingBar"
+                    style="?android:attr/ratingBarStyleIndicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="?android:attr/ratingBarStyleIndicator"
                     android:layout_marginHorizontal="16dp"
-                    tools:rating="4"
-                    android:isIndicator="true"/>
+                    android:isIndicator="true"
+                    tools:rating="4"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/reviewsRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:listitem="@layout/view_review_item" />
+                    tools:listitem="@layout/view_review_item"/>
             </LinearLayout>
-
 
         </LinearLayout>
 
-
     </androidx.core.widget.NestedScrollView>
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/writeReviewButton"
@@ -133,7 +131,6 @@
         android:layout_marginHorizontal="16dp"
         android:backgroundTint="@color/primary"
         android:text="@string/write_a_review"
-        app:cornerRadius="50dp" />
-
+        app:cornerRadius="50dp"/>
 
 </LinearLayout>
