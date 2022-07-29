@@ -37,4 +37,6 @@
     <string name="choose_from_gallery">Choose from gallery</string>
     <string name="permission_must_be_granted_to_use_the_camera_app">Permission must be granted to use the camera app</string>
     <string name="permission_must_be_granted_to_open_the_gallery">Permission must be granted to open the gallery</string>
+    <string name="email_error">Email must be in correct format!</string>
+    <string name="password_error">Password must be at least 6 characters long!</string>
 </resources>

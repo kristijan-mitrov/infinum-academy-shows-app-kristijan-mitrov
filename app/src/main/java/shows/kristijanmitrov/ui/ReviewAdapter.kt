@@ -3,14 +3,20 @@ package shows.kristijanmitrov.ui
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import shows.kristijanmitrov.infinumacademyshows.databinding.ViewReviewItemBinding
 import shows.kristijanmitrov.model.Review
-import shows.kristijanmitrov.model.User
 
 class ReviewAdapter(
     private val items: MutableList<Review> = ArrayList(),
-): RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>(){
+): ListAdapter<Review, ReviewAdapter.ReviewViewHolder>(
+    object : DiffUtil.ItemCallback<Review>() {
+        override fun areItemsTheSame(oldItem: Review, newItem: Review): Boolean = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Review, newItem: Review): Boolean = oldItem == newItem
+    }){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
         val binding = ViewReviewItemBinding.inflate(LayoutInflater.from(parent.context))
@@ -23,13 +29,11 @@ class ReviewAdapter(
 
     override fun getItemCount() = items.count()
 
-    fun addReview(user: User, commentText: String, rating: Int) {
-        val review = Review(user, rating, commentText)
-        items.add(review)
-        notifyItemInserted(items.lastIndex)
+    fun updateReviews(reviews: List<Review>) {
+        items.clear()
+        items.addAll(reviews)
+        notifyDataSetChanged()
     }
-
-    fun getAverage() = items.sumOf { it.ratingValue }/itemCount.toFloat()
 
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
 

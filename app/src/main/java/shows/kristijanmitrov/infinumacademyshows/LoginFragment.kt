@@ -1,24 +1,18 @@
 package shows.kristijanmitrov.infinumacademyshows
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.edit
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
-import android.content.SharedPreferences
-import androidx.fragment.app.viewModels
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.viewModel.LoginViewModel
-
-private const val REMEMBER_ME = "REMEMBER_ME"
-private const val USER = "USER"
 
 class LoginFragment : Fragment() {
 
@@ -29,8 +23,7 @@ class LoginFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        sharedPreferences = requireContext().getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE)
+        sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -41,20 +34,20 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(sharedPreferences.getBoolean(REMEMBER_ME, false)){
+        if (sharedPreferences.getBoolean(Constants.REMEMBER_ME, false)) {
             val directions = LoginFragmentDirections.toShowsFragment()
             findNavController().navigate(directions)
         }
 
         //Observers
-        viewModel.isLoginButtonEnabled.observe(viewLifecycleOwner){ isLoginButtonEnabled ->
+        viewModel.isLoginButtonEnabled.observe(viewLifecycleOwner) { isLoginButtonEnabled ->
             binding.loginButton.isEnabled = isLoginButtonEnabled
         }
-        viewModel.emailError.observe(viewLifecycleOwner){ emailError ->
-            binding.emailInput.error = emailError
+        viewModel.emailError.observe(viewLifecycleOwner) { emailError ->
+            binding.emailInput.error = if (emailError == null) null else getString(emailError)
         }
-        viewModel.passwordError.observe(viewLifecycleOwner){ passwordError ->
-            binding.passwordInput.error = passwordError
+        viewModel.passwordError.observe(viewLifecycleOwner) { passwordError ->
+            binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
         }
 
         initListeners()
@@ -63,10 +56,10 @@ class LoginFragment : Fragment() {
 
     private fun initListeners() {
         binding.emailText.doOnTextChanged { text, _, _, _ ->
-            viewModel.checkLoginValidity(text.toString(), binding.passwordText.text.toString())
+            viewModel.onLoginInputChanged(text.toString(), binding.passwordText.text.toString())
         }
         binding.passwordText.doOnTextChanged { text, _, _, _ ->
-            viewModel.checkLoginValidity(binding.emailText.text.toString(), text.toString())
+            viewModel.onLoginInputChanged(binding.emailText.text.toString(), text.toString())
         }
     }
 
@@ -75,21 +68,16 @@ class LoginFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             val username = binding.emailText.text.toString().split("@")[0]
             val email = binding.emailText.text.toString()
-            val user = User(username, email, null)
+
             sharedPreferences.edit {
-                if (binding.rememberMeCheckbox.isChecked) putBoolean(REMEMBER_ME, true)
-                putUser(USER, user)
+                if (binding.rememberMeCheckbox.isChecked) putBoolean(Constants.REMEMBER_ME, true)
+                putString(Constants.USERNAME, username)
+                putString(Constants.EMAIL, email)
             }
 
             val directions = LoginFragmentDirections.toShowsFragment()
-
             findNavController().navigate(directions)
         }
-    }
-
-    private fun SharedPreferences.Editor.putUser(s: String, user: User) {
-        val json = Json.encodeToString(user)
-        putString(s, json)
     }
 
     override fun onDestroyView() {

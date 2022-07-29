@@ -1,40 +1,44 @@
 package shows.kristijanmitrov.viewModel
 
-import android.provider.Settings.Global.getString
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import shows.kristijanmitrov.infinumacademyshows.R
+import java.util.UUID
+import shows.kristijanmitrov.model.Review
 import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.model.User
-import shows.kristijanmitrov.ui.ReviewAdapter
 
 class ShowDetailsViewModel: ViewModel() {
+
+    private val reviewList = ArrayList<Review>()
+    private fun getAverageReview() =  reviewList.sumOf { review -> review.ratingValue }/reviewList.count().toFloat()
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
     private val _reviewText: MutableLiveData<String> = MutableLiveData()
     private val _ratingBar: MutableLiveData<Float> = MutableLiveData()
+    private val _reviews: MutableLiveData<List<Review>> = MutableLiveData()
 
     val show: LiveData<Show> = _show
     val reviewText: LiveData<String> = _reviewText
     val ratingBar: LiveData<Float> = _ratingBar
+    val reviews: LiveData<List<Review>> = _reviews
 
-    fun setShow(show: Show){
+
+    fun init(show: Show){
         _show.value = show
     }
 
-    fun addReview(adapter: ReviewAdapter, user: User, comment: String, rating: Int){
-        adapter.addReview(
-            user,
-            comment,
-            rating
-        )
+    fun addReview(user: User, descriptionText: String, ratingValue: Int){
+        val newReview = Review(UUID.randomUUID(), user, ratingValue, descriptionText)
 
-        val numOfReviews = adapter.itemCount
-        val averageRating = adapter.getAverage()
+        reviewList.add(newReview)
+
+        val numOfReviews = reviewList.count()
+        val averageRating = getAverageReview()
         val reviewTextStr = String.format("%d REVIEWS, %.2f AVERAGE", numOfReviews, averageRating)
 
         _reviewText.value = reviewTextStr
         _ratingBar.value = averageRating
+        _reviews.value = reviewList
     }
 }

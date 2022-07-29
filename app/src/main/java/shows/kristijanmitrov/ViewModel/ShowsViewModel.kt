@@ -23,7 +23,7 @@ class ShowsViewModel: ViewModel() {
     private val _profilePhoto: MutableLiveData<Uri> = MutableLiveData()
     val profilePhoto: LiveData<Uri> = _profilePhoto
 
-    fun setProfilePhoto(uri: Uri){
+    fun onProfilePhotoChanged(uri: Uri){
         _profilePhoto.value = uri
     }
 

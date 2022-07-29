@@ -4,28 +4,23 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RatingBar
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowDetailsBinding
 import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.ui.ReviewAdapter
 import shows.kristijanmitrov.viewModel.ShowDetailsViewModel
-import shows.kristijanmitrov.viewModel.ShowsViewModel
-
-private const val USER = "USER"
 
 class ShowDetailsFragment : Fragment() {
 
@@ -40,9 +35,16 @@ class ShowDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = requireContext().getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE)
-        // TODO: Same here, is it okay that I use !!
-        user = sharedPreferences.getUser(USER, null)!!
+        sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
+
+        val username = sharedPreferences.getString(Constants.USERNAME, null)
+        val email = sharedPreferences.getString(Constants.EMAIL, null)
+        val profilePhoto = sharedPreferences.getString(Constants.PROFILE_PHOTO, null)
+
+        if(username == null || email == null){
+            val directions = ShowsFragmentDirections.toLoginFragment()
+            findNavController().navigate(directions)
+        }else user = User(username, email, profilePhoto)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -53,7 +55,7 @@ class ShowDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.setShow(args.show)
+        viewModel.init(args.show)
 
         viewModel.show.observe(viewLifecycleOwner) { show ->
             with(binding) {
@@ -74,6 +76,10 @@ class ShowDetailsFragment : Fragment() {
                 emptyStateLayout.isVisible = false
                 reviewPanel.isVisible = true
             }
+        }
+
+        viewModel.reviews.observe(viewLifecycleOwner) { reviews ->
+            adapter.updateReviews(reviews)
         }
 
         initToolbar()
@@ -115,7 +121,7 @@ class ShowDetailsFragment : Fragment() {
 
         //init submit button
         bottomSheetBinding.submitButton.setOnClickListener {
-            viewModel.addReview(adapter, user, bottomSheetBinding.commentText.text.toString(), bottomSheetBinding.ratingBar.rating.toInt())
+            viewModel.addReview(user, bottomSheetBinding.commentText.text.toString(), bottomSheetBinding.ratingBar.rating.toInt())
             dialog.dismiss()
         }
 
@@ -135,11 +141,6 @@ class ShowDetailsFragment : Fragment() {
             reviewsRecycler.adapter = adapter
             reviewsRecycler.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
-    }
-
-    private fun SharedPreferences.getUser(s: String, default: String?): User? {
-        val userJson = getString(s, default)
-        return userJson?.let { Json.decodeFromString(userJson) }
     }
 
     override fun onDestroyView() {

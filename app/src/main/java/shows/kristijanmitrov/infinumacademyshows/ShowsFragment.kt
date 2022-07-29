@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,19 +22,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.io.File
-import java.io.InputStream
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogProfileBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowsBinding
 import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.ui.ShowsAdapter
-import shows.kristijanmitrov.viewModel.LoginViewModel
 import shows.kristijanmitrov.viewModel.ShowsViewModel
-
-private const val REMEMBER_ME = "REMEMBER_ME"
-private const val USER = "USER"
 
 class ShowsFragment : Fragment() {
 
@@ -52,8 +43,8 @@ class ShowsFragment : Fragment() {
         if (isSuccess) {
             latestTmpUri?.let { uri ->
                 user.profilePhoto = uri.toString()
-                sharedPreferences.edit{putUser(USER, user)}
-                viewModel.setProfilePhoto(uri)
+                sharedPreferences.edit{putString(Constants.PROFILE_PHOTO, user.profilePhoto)}
+                viewModel.onProfilePhotoChanged(uri)
 
             }
         }
@@ -62,16 +53,25 @@ class ShowsFragment : Fragment() {
     private val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             user.profilePhoto = uri.toString()
-            sharedPreferences.edit{putUser(USER, user)}
-            viewModel.setProfilePhoto(uri)
+            sharedPreferences.edit{putString(Constants.PROFILE_PHOTO, user.profilePhoto)}
+            viewModel.onProfilePhotoChanged(uri)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = requireContext().getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE)
-        user = sharedPreferences.getUser(USER, null)!!
+        sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
+
+        val username = sharedPreferences.getString(Constants.USERNAME, null)
+        val email = sharedPreferences.getString(Constants.EMAIL, null)
+        val profilePhoto = sharedPreferences.getString(Constants.PROFILE_PHOTO, null)
+
+        if(username == null || email == null){
+            val directions = ShowsFragmentDirections.toLoginFragment()
+            findNavController().navigate(directions)
+        }else user = User(username, email, profilePhoto)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -147,8 +147,10 @@ class ShowsFragment : Fragment() {
                 .setMessage(getString(R.string.are_you_sure))
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     sharedPreferences.edit {
-                        putBoolean(REMEMBER_ME, false)
-                        remove(USER)
+                        putBoolean(Constants.REMEMBER_ME, false)
+                        remove(Constants.USERNAME)
+                        remove(Constants.EMAIL)
+                        remove(Constants.PROFILE_PHOTO)
                     }
                     dialog.dismiss()
                     findNavController().navigate(ShowsFragmentDirections.toLoginFragment())
@@ -166,7 +168,7 @@ class ShowsFragment : Fragment() {
     }
 
     private fun getTmpFileUri(): Uri {
-        val tmpFile = File.createTempFile("profilePhoto", ".png", requireContext().filesDir).apply {
+        val tmpFile = File.createTempFile(Constants.PROFILE_PHOTO, ".png", requireContext().filesDir).apply {
             createNewFile()
         }
 
@@ -242,16 +244,6 @@ class ShowsFragment : Fragment() {
                 showHideButton.text = getString(R.string.show)
             }
         }
-    }
-
-    private fun SharedPreferences.Editor.putUser(s: String, user: User) {
-        val json = Json.encodeToString(user)
-        putString(s, json)
-    }
-
-    private fun SharedPreferences.getUser(s: String, default: String?): User? {
-        val userJson = getString(s, default)
-        return userJson?.let { Json.decodeFromString(userJson) }
     }
 
     override fun onDestroyView() {
