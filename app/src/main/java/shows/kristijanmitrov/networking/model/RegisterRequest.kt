@@ -1,4 +1,4 @@
-package shows.kristijanmitrov.networking.models
+package shows.kristijanmitrov.networking.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

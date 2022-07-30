@@ -39,4 +39,8 @@
     <string name="permission_must_be_granted_to_open_the_gallery">Permission must be granted to open the gallery</string>
     <string name="email_error">Email must be in correct format!</string>
     <string name="password_error">Password must be at least 6 characters long!</string>
+    <string name="register">Register</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="repeat_password_error">Passwords do not match!</string>
+    <string name="registration_successful">Registration successful!</string>
 </resources>

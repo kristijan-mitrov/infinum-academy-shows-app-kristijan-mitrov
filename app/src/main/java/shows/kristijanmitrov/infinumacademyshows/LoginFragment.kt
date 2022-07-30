@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
 import shows.kristijanmitrov.viewModel.LoginViewModel
 
@@ -19,6 +21,7 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val viewModel by viewModels<LoginViewModel>()
+    private val args by navArgs<LoginFragmentArgs>()
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,8 +53,22 @@ class LoginFragment : Fragment() {
             binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
         }
 
+        if(!args.initial){
+            binding.loginText.text = getString(R.string.registration_successful)
+            binding.loginText.textSize = 30F
+            binding.registerButton.isVisible = false
+        }
+
         initListeners()
         initLoginButton()
+        initRegisterButton()
+    }
+
+    private fun initRegisterButton() {
+        binding.registerButton.setOnClickListener {
+            val directions = LoginFragmentDirections.toRegisterFragment()
+            findNavController().navigate(directions)
+        }
     }
 
     private fun initListeners() {
