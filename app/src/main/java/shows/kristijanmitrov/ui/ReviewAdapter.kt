@@ -9,9 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import shows.kristijanmitrov.infinumacademyshows.databinding.ViewReviewItemBinding
 import shows.kristijanmitrov.model.Review
 
-class ReviewAdapter(
-    private val items: MutableList<Review> = ArrayList(),
-): ListAdapter<Review, ReviewAdapter.ReviewViewHolder>(
+class ReviewAdapter: ListAdapter<Review, ReviewAdapter.ReviewViewHolder>(
     object : DiffUtil.ItemCallback<Review>() {
         override fun areItemsTheSame(oldItem: Review, newItem: Review): Boolean = oldItem.id == newItem.id
 
@@ -24,15 +22,7 @@ class ReviewAdapter(
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
-        holder.bind(items[position])
-    }
-
-    override fun getItemCount() = items.count()
-
-    fun updateReviews(reviews: List<Review>) {
-        items.clear()
-        items.addAll(reviews)
-        notifyDataSetChanged()
+        holder.bind(getItem(position))
     }
 
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.util.UUID
+import shows.kristijanmitrov.model.RatingData
 import shows.kristijanmitrov.model.Review
 import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.model.User
@@ -14,14 +15,14 @@ class ShowDetailsViewModel: ViewModel() {
     private fun getAverageReview() =  reviewList.sumOf { review -> review.ratingValue }/reviewList.count().toFloat()
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
-    private val _reviewText: MutableLiveData<String> = MutableLiveData()
+    private val _ratingData: MutableLiveData<RatingData> = MutableLiveData()
     private val _ratingBar: MutableLiveData<Float> = MutableLiveData()
-    private val _reviews: MutableLiveData<List<Review>> = MutableLiveData()
+    private val _reviews: MutableLiveData<MutableList<Review>> = MutableLiveData()
 
     val show: LiveData<Show> = _show
-    val reviewText: LiveData<String> = _reviewText
+    val ratingData: LiveData<RatingData> = _ratingData
     val ratingBar: LiveData<Float> = _ratingBar
-    val reviews: LiveData<List<Review>> = _reviews
+    val reviews: LiveData<MutableList<Review>> = _reviews
 
 
     fun init(show: Show){
@@ -33,11 +34,10 @@ class ShowDetailsViewModel: ViewModel() {
 
         reviewList.add(newReview)
 
-        val numOfReviews = reviewList.count()
         val averageRating = getAverageReview()
-        val reviewTextStr = String.format("%d REVIEWS, %.2f AVERAGE", numOfReviews, averageRating)
+        val numOfReviews = reviewList.count()
 
-        _reviewText.value = reviewTextStr
+        _ratingData.value = RatingData(averageRating, numOfReviews)
         _ratingBar.value = averageRating
         _reviews.value = reviewList
     }

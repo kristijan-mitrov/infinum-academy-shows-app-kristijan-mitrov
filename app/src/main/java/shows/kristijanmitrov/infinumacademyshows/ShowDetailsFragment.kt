@@ -66,8 +66,8 @@ class ShowDetailsFragment : Fragment() {
             }
         }
 
-        viewModel.reviewText.observe(viewLifecycleOwner) { reviewText ->
-            binding.reviewText.text = reviewText
+        viewModel.ratingData.observe(viewLifecycleOwner) { ratingData ->
+            binding.reviewText.text = getString(R.string.d_reviews_2f_average, ratingData.numOfReviews, ratingData.averageRating)
         }
 
         viewModel.ratingBar.observe(viewLifecycleOwner) { averageRating ->
@@ -79,7 +79,7 @@ class ShowDetailsFragment : Fragment() {
         }
 
         viewModel.reviews.observe(viewLifecycleOwner) { reviews ->
-            adapter.updateReviews(reviews)
+            adapter.submitList(reviews)
         }
 
         initToolbar()

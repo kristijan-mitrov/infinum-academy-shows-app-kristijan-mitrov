@@ -19,14 +19,8 @@ class LoginViewModel : ViewModel() {
         val validEmail = emailText.matches(Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+\$"))
         val validPassword = passwordText.length >= 6
 
-        if(validEmail && validPassword) {
-            _emailError.value = null
-            _passwordError.value = null
-            _isLoginButtonEnabled.value = true
-        }else {
-            _emailError.value = if(!validEmail) R.string.email_error else null
-            _passwordError.value = if(!validPassword) R.string.password_error else null
-            _isLoginButtonEnabled.value = false
-        }
+        _emailError.value = if(!validEmail) R.string.email_error else null
+        _passwordError.value = if(!validPassword) R.string.password_error else null
+        _isLoginButtonEnabled.value = validEmail && validPassword
     }
 }
