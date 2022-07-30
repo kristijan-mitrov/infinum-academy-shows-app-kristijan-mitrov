@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -14,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
+import shows.kristijanmitrov.networking.ApiModule
 import shows.kristijanmitrov.viewModel.LoginViewModel
 
 class LoginFragment : Fragment() {
@@ -42,6 +44,8 @@ class LoginFragment : Fragment() {
             findNavController().navigate(directions)
         }
 
+        ApiModule.initRetrofit(requireContext())
+
         //Observers
         viewModel.isLoginButtonEnabled.observe(viewLifecycleOwner) { isLoginButtonEnabled ->
             binding.loginButton.isEnabled = isLoginButtonEnabled
@@ -51,6 +55,28 @@ class LoginFragment : Fragment() {
         }
         viewModel.passwordError.observe(viewLifecycleOwner) { passwordError ->
             binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
+        }
+
+        viewModel.getSignInResultLiveData().observe(viewLifecycleOwner){ signInResult ->
+            if(signInResult.isSuccessful){
+                val username = binding.emailText.text.toString().split("@")[0]
+                val email = binding.emailText.text.toString()
+
+                sharedPreferences.edit {
+                    if (binding.rememberMeCheckbox.isChecked) putBoolean(Constants.REMEMBER_ME, true)
+                    putString(Constants.USERNAME, username)
+                    putString(Constants.EMAIL, email)
+                    putString(Constants.ACCESS_TOKEN, signInResult.accessToken)
+                    putString(Constants.CLIENT, signInResult.client)
+                    putString(Constants.EXPIRY, signInResult.expiry)
+                    putString(Constants.UID, signInResult.uid)
+                }
+
+                val directions = LoginFragmentDirections.toShowsFragment()
+                findNavController().navigate(directions)
+            }else{
+                Toast.makeText(requireContext(), getString(R.string.login_error), Toast.LENGTH_SHORT).show()
+            }
         }
 
         if(!args.initial){
@@ -81,19 +107,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun initLoginButton() {
-
         binding.loginButton.setOnClickListener {
-            val username = binding.emailText.text.toString().split("@")[0]
-            val email = binding.emailText.text.toString()
-
-            sharedPreferences.edit {
-                if (binding.rememberMeCheckbox.isChecked) putBoolean(Constants.REMEMBER_ME, true)
-                putString(Constants.USERNAME, username)
-                putString(Constants.EMAIL, email)
-            }
-
-            val directions = LoginFragmentDirections.toShowsFragment()
-            findNavController().navigate(directions)
+            viewModel.onLogInButtonClicked(binding.emailText.text.toString(), binding.passwordText.text.toString())
         }
     }
 

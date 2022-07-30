@@ -43,4 +43,6 @@
     <string name="repeat_password">Repeat password</string>
     <string name="repeat_password_error">Passwords do not match!</string>
     <string name="registration_successful">Registration successful!</string>
+    <string name="email_is_already_taken">Email is already taken!</string>
+    <string name="login_error">Invalid login credentials. Please try again.</string>
 </resources>

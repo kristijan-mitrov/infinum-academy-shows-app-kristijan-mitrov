@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentRegisterBinding
+import shows.kristijanmitrov.networking.ApiModule
 import shows.kristijanmitrov.viewModel.RegisterViewModel
 
 class RegisterFragment : Fragment() {
@@ -25,6 +26,8 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        ApiModule.initRetrofit(requireContext())
+
         //Observers
         viewModel.isRegisterButtonEnabled.observe(viewLifecycleOwner){ isRegisterButtonEnabled ->
             binding.registerButton.isEnabled = isRegisterButtonEnabled
@@ -39,14 +42,24 @@ class RegisterFragment : Fragment() {
             binding.repeatPasswordInput.error = if (repeatPasswordError == null) null else getString(repeatPasswordError)
         }
 
+        viewModel.getRegistrationResultLiveData().observe(viewLifecycleOwner){ registrationSuccessful ->
+            if(registrationSuccessful){
+                val directions = RegisterFragmentDirections.toLoginFragment(false)
+                findNavController().navigate(directions)
+            }
+        }
+
         initListeners()
         initRegisterButton()
     }
 
-    private fun initRegisterButton() {
-        binding.registerButton.setOnClickListener {
-            val directions = RegisterFragmentDirections.toLoginFragment(false)
-            findNavController().navigate(directions)
+    private fun initRegisterButton() = with(binding){
+        registerButton.setOnClickListener {
+            viewModel.onRegisterButtonClicked(
+                email = emailText.text.toString(),
+                password = passwordText.text.toString(),
+                passwordConfirmation = repeatPasswordText.text.toString()
+            )
         }
     }
 

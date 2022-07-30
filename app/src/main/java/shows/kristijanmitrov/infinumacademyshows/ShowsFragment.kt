@@ -147,10 +147,14 @@ class ShowsFragment : Fragment() {
                 .setMessage(getString(R.string.are_you_sure))
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     sharedPreferences.edit {
-                        putBoolean(Constants.REMEMBER_ME, false)
+                        remove(Constants.REMEMBER_ME)
                         remove(Constants.USERNAME)
                         remove(Constants.EMAIL)
                         remove(Constants.PROFILE_PHOTO)
+                        remove(Constants.ACCESS_TOKEN)
+                        remove(Constants.CLIENT)
+                        remove(Constants.EXPIRY)
+                        remove(Constants.UID)
                     }
                     dialog.dismiss()
                     findNavController().navigate(ShowsFragmentDirections.toLoginFragment())
