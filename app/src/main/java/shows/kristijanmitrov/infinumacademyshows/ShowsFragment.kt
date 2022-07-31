@@ -43,8 +43,8 @@ class ShowsFragment : Fragment() {
     private val takeImageResult = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
         if (isSuccess) {
             latestTmpUri?.let { uri ->
-                user.profilePhoto = uri.toString()
-                sharedPreferences.edit{putString(Constants.PROFILE_PHOTO, user.profilePhoto)}
+                user.imageUrl = uri.toString()
+                sharedPreferences.edit{putString(Constants.IMAGE, user.imageUrl)}
                 viewModel.onProfilePhotoChanged(uri)
 
             }
@@ -53,8 +53,8 @@ class ShowsFragment : Fragment() {
 
     private val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            user.profilePhoto = uri.toString()
-            sharedPreferences.edit{putString(Constants.PROFILE_PHOTO, user.profilePhoto)}
+            user.imageUrl = uri.toString()
+            sharedPreferences.edit{putString(Constants.IMAGE, user.imageUrl)}
             viewModel.onProfilePhotoChanged(uri)
         }
     }
@@ -64,14 +64,14 @@ class ShowsFragment : Fragment() {
 
         sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
 
-        val username = sharedPreferences.getString(Constants.USERNAME, null)
+        val id = sharedPreferences.getString(Constants.ID, null)
         val email = sharedPreferences.getString(Constants.EMAIL, null)
-        val profilePhoto = sharedPreferences.getString(Constants.PROFILE_PHOTO, null)
+        val imageUrl = sharedPreferences.getString(Constants.IMAGE, null)
 
-        if(username == null || email == null){
+        if(id == null || email == null){
             val directions = ShowsFragmentDirections.toLoginFragment()
             findNavController().navigate(directions)
-        }else user = User(username, email, profilePhoto)
+        }else user = User(id, email, imageUrl)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -90,10 +90,12 @@ class ShowsFragment : Fragment() {
             bottomSheetBinding.profilePhoto.setImageURI(profilePhoto)
         }
 
-        viewModel.getShowsResultLiveData().observe(viewLifecycleOwner){ ShowsResultData ->
-            if(ShowsResultData.isSuccessful){
-                adapter.setShows(ShowsResultData.shows)
-                Toast.makeText(requireContext(), "Shows set", Toast.LENGTH_SHORT).show()
+        viewModel.getShowsResultLiveData().observe(viewLifecycleOwner){ ShowsResponse ->
+            if(ShowsResponse.isSuccessful){
+                ShowsResponse.body?.let {
+                    adapter.setShows(it.shows)
+                    Toast.makeText(requireContext(), "Shows set", Toast.LENGTH_SHORT).show()
+                }
             }else
                 Toast.makeText(requireContext(), "Shows not set", Toast.LENGTH_SHORT).show()
         }
@@ -104,8 +106,8 @@ class ShowsFragment : Fragment() {
     }
 
     private fun initToolbar() {
-        user.profilePhoto?.let{
-            val profilePhotoUri = Uri.parse(user.profilePhoto)
+        user.imageUrl?.let{
+            val profilePhotoUri = Uri.parse(user.imageUrl)
             binding.profilePhoto.setImageURI(profilePhotoUri)
         }
 
@@ -122,8 +124,8 @@ class ShowsFragment : Fragment() {
 
         //init information
         bottomSheetBinding.email.text = user.email
-        user.profilePhoto?.let{
-            val profilePhotoUri = Uri.parse(user.profilePhoto)
+        user.imageUrl?.let{
+            val profilePhotoUri = Uri.parse(user.imageUrl)
             bottomSheetBinding.profilePhoto.setImageURI(profilePhotoUri)
         }
 
@@ -158,9 +160,9 @@ class ShowsFragment : Fragment() {
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     sharedPreferences.edit {
                         remove(Constants.REMEMBER_ME)
-                        remove(Constants.USERNAME)
-                        remove(Constants.EMAIL)
-                        remove(Constants.PROFILE_PHOTO)
+                        remove(Constants.ID)
+                        remove(Constants.IMAGE)
+                        remove(Constants.IMAGE)
                         remove(Constants.ACCESS_TOKEN)
                         remove(Constants.CLIENT)
                         remove(Constants.EXPIRY)
@@ -182,7 +184,7 @@ class ShowsFragment : Fragment() {
     }
 
     private fun getTmpFileUri(): Uri {
-        val tmpFile = File.createTempFile(Constants.PROFILE_PHOTO, ".png", requireContext().filesDir).apply {
+        val tmpFile = File.createTempFile(Constants.IMAGE, ".png", requireContext().filesDir).apply {
             createNewFile()
         }
 
@@ -255,7 +257,6 @@ class ShowsFragment : Fragment() {
     private fun initShowHideButton() = with(binding) {
         binding.showHideButton.setOnClickListener {
             if (adapter.itemCount == 0) {
-//                adapter.setShows(viewModel.showsList)
                 showsRecycler.isVisible = true
                 emptyStateLayout.isVisible = false
                 showHideButton.text = getString(R.string.hide)

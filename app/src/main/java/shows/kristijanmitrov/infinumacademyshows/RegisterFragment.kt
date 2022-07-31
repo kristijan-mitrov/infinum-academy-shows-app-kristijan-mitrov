@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -28,32 +29,35 @@ class RegisterFragment : Fragment() {
 
         ApiModule.initRetrofit(requireContext())
 
-        //Observers
-        viewModel.isRegisterButtonEnabled.observe(viewLifecycleOwner){ isRegisterButtonEnabled ->
-            binding.registerButton.isEnabled = isRegisterButtonEnabled
-        }
-        viewModel.emailError.observe(viewLifecycleOwner){ emailError ->
-            binding.emailInput.error = if (emailError == null) null else getString(emailError)
-        }
-        viewModel.passwordError.observe(viewLifecycleOwner){ passwordError ->
-            binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
-        }
-        viewModel.repeatPasswordError.observe(viewLifecycleOwner){ repeatPasswordError ->
-            binding.repeatPasswordInput.error = if (repeatPasswordError == null) null else getString(repeatPasswordError)
-        }
-
-        viewModel.getRegistrationResultLiveData().observe(viewLifecycleOwner){ registrationSuccessful ->
-            if(registrationSuccessful){
-                val directions = RegisterFragmentDirections.toLoginFragment(false)
-                findNavController().navigate(directions)
-            }
-        }
-
+        initObservers()
         initListeners()
         initRegisterButton()
     }
 
-    private fun initRegisterButton() = with(binding){
+    private fun initObservers() = with(viewModel) {
+        isRegisterButtonEnabled.observe(viewLifecycleOwner) { isRegisterButtonEnabled ->
+            binding.registerButton.isEnabled = isRegisterButtonEnabled
+        }
+        emailError.observe(viewLifecycleOwner) { emailError ->
+            binding.emailInput.error = if (emailError == null) null else getString(emailError)
+        }
+        passwordError.observe(viewLifecycleOwner) { passwordError ->
+            binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
+        }
+        repeatPasswordError.observe(viewLifecycleOwner) { repeatPasswordError ->
+            binding.repeatPasswordInput.error = if (repeatPasswordError == null) null else getString(repeatPasswordError)
+        }
+        getRegistrationResultLiveData().observe(viewLifecycleOwner) { registrationSuccessful ->
+            if (registrationSuccessful.isSuccessful) {
+                val directions = RegisterFragmentDirections.toLoginFragment(false)
+                findNavController().navigate(directions)
+            }else{
+                Toast.makeText(requireContext(), getString(R.string.registration_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun initRegisterButton() = with(binding) {
         registerButton.setOnClickListener {
             viewModel.onRegisterButtonClicked(
                 email = emailText.text.toString(),
@@ -65,7 +69,11 @@ class RegisterFragment : Fragment() {
 
     private fun initListeners() {
         binding.emailText.doOnTextChanged { text, _, _, _ ->
-            viewModel.checkRegisterValidity(text.toString(), binding.passwordText.text.toString(), binding.repeatPasswordText.text.toString())
+            viewModel.checkRegisterValidity(
+                text.toString(),
+                binding.passwordText.text.toString(),
+                binding.repeatPasswordText.text.toString()
+            )
         }
         binding.passwordText.doOnTextChanged { text, _, _, _ ->
             viewModel.checkRegisterValidity(binding.emailText.text.toString(), text.toString(), binding.repeatPasswordText.text.toString())

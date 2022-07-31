@@ -28,13 +28,13 @@ class ReviewAdapter: ListAdapter<Review, ReviewAdapter.ReviewViewHolder>(
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Review) = with(binding){
-            item.user.profilePhoto?.let{
-                val profilePhotoUri = Uri.parse(item.user.profilePhoto)
+            item.user.imageUrl?.let{
+                val profilePhotoUri = Uri.parse(item.user.imageUrl)
                 profilePhoto.setImageURI(profilePhotoUri)
             }
-            username.text = item.user.username
-            descriptionText.text = item.descriptionText
-            ratingValue.text = item.ratingValue.toString()
+            username.text = item.user.getUsername()
+            descriptionText.text = item.comment
+            ratingValue.text = item.rating.toString()
         }
     }
 

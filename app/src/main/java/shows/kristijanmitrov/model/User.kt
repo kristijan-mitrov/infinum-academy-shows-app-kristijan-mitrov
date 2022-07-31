@@ -1,7 +1,13 @@
 package shows.kristijanmitrov.model
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
-    val username: String,
-    val email: String,
-    var profilePhoto: String?
-)
+    @SerialName("id") val id: String,
+    @SerialName("email") val email: String,
+    @SerialName("image_url") var imageUrl: String?
+){
+    fun getUsername() = email.split("@")[0]
+}

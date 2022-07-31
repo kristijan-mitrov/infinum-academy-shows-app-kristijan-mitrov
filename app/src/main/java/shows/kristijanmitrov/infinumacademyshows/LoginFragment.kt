@@ -44,32 +44,41 @@ class LoginFragment : Fragment() {
             findNavController().navigate(directions)
         }
 
+        if(!args.initial){
+            binding.loginText.text = getString(R.string.registration_successful)
+            binding.loginText.textSize = 30F
+            binding.registerButton.isVisible = false
+        }
+
         ApiModule.initRetrofit(requireContext())
 
-        //Observers
-        viewModel.isLoginButtonEnabled.observe(viewLifecycleOwner) { isLoginButtonEnabled ->
+        initObservers()
+        initListeners()
+        initLoginButton()
+        initRegisterButton()
+    }
+
+    private fun initObservers() = with(viewModel) {
+        isLoginButtonEnabled.observe(viewLifecycleOwner) { isLoginButtonEnabled ->
             binding.loginButton.isEnabled = isLoginButtonEnabled
         }
-        viewModel.emailError.observe(viewLifecycleOwner) { emailError ->
+        emailError.observe(viewLifecycleOwner) { emailError ->
             binding.emailInput.error = if (emailError == null) null else getString(emailError)
         }
-        viewModel.passwordError.observe(viewLifecycleOwner) { passwordError ->
+        passwordError.observe(viewLifecycleOwner) { passwordError ->
             binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
         }
-
-        viewModel.getSignInResultLiveData().observe(viewLifecycleOwner){ signInResult ->
-            if(signInResult.isSuccessful){
-                val username = binding.emailText.text.toString().split("@")[0]
-                val email = binding.emailText.text.toString()
-
+        getSignInResponseLiveData().observe(viewLifecycleOwner){ signInResponse ->
+            if(signInResponse.isSuccessful){
                 sharedPreferences.edit {
                     if (binding.rememberMeCheckbox.isChecked) putBoolean(Constants.REMEMBER_ME, true)
-                    putString(Constants.USERNAME, username)
-                    putString(Constants.EMAIL, email)
-                    putString(Constants.ACCESS_TOKEN, signInResult.accessToken)
-                    putString(Constants.CLIENT, signInResult.client)
-                    putString(Constants.EXPIRY, signInResult.expiry)
-                    putString(Constants.UID, signInResult.uid)
+                    putString(Constants.ID, signInResponse.body?.user?.id)
+                    putString(Constants.EMAIL, signInResponse.body?.user?.email)
+                    putString(Constants.IMAGE, signInResponse.body?.user?.imageUrl)
+                    putString(Constants.ACCESS_TOKEN, signInResponse.header?.accessToken)
+                    putString(Constants.CLIENT, signInResponse.header?.client)
+                    putString(Constants.EXPIRY, signInResponse.header?.expiry)
+                    putString(Constants.UID, signInResponse.header?.uid)
                 }
 
                 val directions = LoginFragmentDirections.toShowsFragment()
@@ -78,16 +87,6 @@ class LoginFragment : Fragment() {
                 Toast.makeText(requireContext(), getString(R.string.login_error), Toast.LENGTH_SHORT).show()
             }
         }
-
-        if(!args.initial){
-            binding.loginText.text = getString(R.string.registration_successful)
-            binding.loginText.textSize = 30F
-            binding.registerButton.isVisible = false
-        }
-
-        initListeners()
-        initLoginButton()
-        initRegisterButton()
     }
 
     private fun initRegisterButton() {

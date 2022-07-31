@@ -7,19 +7,19 @@ import androidx.lifecycle.ViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import shows.kristijanmitrov.model.ShowsResultData
+import shows.kristijanmitrov.model.api.ShowsResponse
+import shows.kristijanmitrov.model.api.ShowsResponseBody
 import shows.kristijanmitrov.networking.ApiModule
-import shows.kristijanmitrov.networking.model.ShowsResponse
 
 class ShowsViewModel : ViewModel() {
 
     private val _profilePhoto: MutableLiveData<Uri> = MutableLiveData()
-    private val showsResultLiveData: MutableLiveData<ShowsResultData> by lazy { MutableLiveData<ShowsResultData>() }
+    private val showsResponseLiveData: MutableLiveData<ShowsResponse> by lazy { MutableLiveData<ShowsResponse>() }
 
     val profilePhoto: LiveData<Uri> = _profilePhoto
 
-    fun getShowsResultLiveData(): LiveData<ShowsResultData> {
-        return showsResultLiveData
+    fun getShowsResultLiveData(): LiveData<ShowsResponse> {
+        return showsResponseLiveData
     }
 
     fun onProfilePhotoChanged(uri: Uri) {
@@ -28,22 +28,30 @@ class ShowsViewModel : ViewModel() {
 
     fun init(accessToken: String, client: String, expiry: String, uid: String) {
         ApiModule.retrofit.shows(accessToken, client, expiry, uid)
-            .enqueue(object : Callback<ShowsResponse> {
-                override fun onResponse(call: Call<ShowsResponse>, response: Response<ShowsResponse>) {
-                    val showsResultData = response.body()?.let {
-                        ShowsResultData(
-                            isSuccessful = response.isSuccessful,
-                            shows = it.shows
+            .enqueue(object : Callback<ShowsResponseBody> {
+                override fun onResponse(call: Call<ShowsResponseBody>, response: Response<ShowsResponseBody>) {
+                    val body = response.body()?.let {
+                        ShowsResponseBody(
+                            shows = it.shows,
+                            meta = it.meta
                         )
                     }
-                    showsResultLiveData.value = showsResultData
+
+                    val showsResponse = ShowsResponse(
+                        isSuccessful = response.isSuccessful,
+                        body = body
+                    )
+
+                    showsResponseLiveData.value = showsResponse
                 }
 
-                override fun onFailure(call: Call<ShowsResponse>, t: Throwable) {
-                    val showsResultData = ShowsResultData(
+                override fun onFailure(call: Call<ShowsResponseBody>, t: Throwable) {
+
+                    val showsResponse = ShowsResponse(
                         isSuccessful = false
                     )
-                    showsResultLiveData.value = showsResultData
+
+                    showsResponseLiveData.value = showsResponse
                 }
 
             })

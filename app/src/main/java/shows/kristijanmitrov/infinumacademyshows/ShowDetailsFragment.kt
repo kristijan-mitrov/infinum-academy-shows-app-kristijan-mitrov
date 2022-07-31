@@ -38,14 +38,14 @@ class ShowDetailsFragment : Fragment() {
 
         sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
 
-        val username = sharedPreferences.getString(Constants.USERNAME, null)
+        val id = sharedPreferences.getString(Constants.ID, null)
         val email = sharedPreferences.getString(Constants.EMAIL, null)
-        val profilePhoto = sharedPreferences.getString(Constants.PROFILE_PHOTO, null)
+        val imageUrl = sharedPreferences.getString(Constants.IMAGE, null)
 
-        if(username == null || email == null){
+        if(id == null || email == null){
             val directions = ShowsFragmentDirections.toLoginFragment()
             findNavController().navigate(directions)
-        }else user = User(username, email, profilePhoto)
+        }else user = User(id, email, imageUrl)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -64,11 +64,9 @@ class ShowDetailsFragment : Fragment() {
                 title.text = show.title
                 Glide.with(requireContext()).load(show.imageUrl).into(binding.image)
                 descriptionText.text = show.description
+                if(show.noOfReviews > 0)
+                    reviewText.text = getString(R.string.d_reviews_2f_average, show.noOfReviews, show.averageRating)
             }
-        }
-
-        viewModel.ratingData.observe(viewLifecycleOwner) { ratingData ->
-            binding.reviewText.text = getString(R.string.d_reviews_2f_average, ratingData.numOfReviews, ratingData.averageRating)
         }
 
         viewModel.ratingBar.observe(viewLifecycleOwner) { averageRating ->
