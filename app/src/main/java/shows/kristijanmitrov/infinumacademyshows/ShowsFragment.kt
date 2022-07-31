@@ -256,12 +256,11 @@ class ShowsFragment : Fragment() {
 
     private fun initShowHideButton() = with(binding) {
         binding.showHideButton.setOnClickListener {
-            if (adapter.itemCount == 0) {
+            if (!showsRecycler.isVisible) {
                 showsRecycler.isVisible = true
                 emptyStateLayout.isVisible = false
                 showHideButton.text = getString(R.string.hide)
             } else {
-                adapter.clearShows()
                 showsRecycler.isVisible = false
                 emptyStateLayout.isVisible = true
                 showHideButton.text = getString(R.string.show)

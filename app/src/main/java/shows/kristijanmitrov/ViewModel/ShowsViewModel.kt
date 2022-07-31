@@ -30,16 +30,9 @@ class ShowsViewModel : ViewModel() {
         ApiModule.retrofit.shows(accessToken, client, expiry, uid)
             .enqueue(object : Callback<ShowsResponseBody> {
                 override fun onResponse(call: Call<ShowsResponseBody>, response: Response<ShowsResponseBody>) {
-                    val body = response.body()?.let {
-                        ShowsResponseBody(
-                            shows = it.shows,
-                            meta = it.meta
-                        )
-                    }
-
                     val showsResponse = ShowsResponse(
                         isSuccessful = response.isSuccessful,
-                        body = body
+                        body = response.body()
                     )
 
                     showsResponseLiveData.value = showsResponse

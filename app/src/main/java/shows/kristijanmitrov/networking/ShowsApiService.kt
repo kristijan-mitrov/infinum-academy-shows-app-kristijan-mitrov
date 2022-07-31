@@ -6,8 +6,13 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.Query
+import shows.kristijanmitrov.model.api.AddReviewRequest
+import shows.kristijanmitrov.model.api.AddReviewResponseBody
 import shows.kristijanmitrov.model.api.RegisterRequest
 import shows.kristijanmitrov.model.api.RegisterResponseBody
+import shows.kristijanmitrov.model.api.ReviewResponseBody
 import shows.kristijanmitrov.model.api.ShowsResponseBody
 import shows.kristijanmitrov.model.api.SignInRequest
 import shows.kristijanmitrov.model.api.SignInResponseBody
@@ -28,4 +33,26 @@ interface ShowsApiService {
         @Header("expiry") expiry: String,
         @Header("uid") uid: String,
     ): Call<ShowsResponseBody>
+
+    @Headers("token-type: Bearer")
+    @GET("/shows/{show_id}/reviews")
+    fun reviews(
+        @Path(value = "show_id", encoded = true) showId: String,
+        @Query("page") page: Int,
+        @Header("access-token") accessToken: String,
+        @Header("client") client: String,
+        @Header("expiry") expiry: String,
+        @Header("uid") uid: String,
+    ): Call<ReviewResponseBody>
+
+    @Headers("token-type: Bearer")
+    @POST("/reviews")
+    fun addReview(
+        @Header("access-token") accessToken: String,
+        @Header("client") client: String,
+        @Header("expiry") expiry: String,
+        @Header("uid") uid: String,
+        @Body request: AddReviewRequest
+    ): Call<AddReviewResponseBody>
+
 }

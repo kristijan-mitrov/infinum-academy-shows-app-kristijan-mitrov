@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Parcelize
 @Serializable
 data class Show(
-    @SerialName("id") val id: String?,
+    @SerialName("id") val id: String,
     @SerialName("average_rating") val averageRating: Float?,
     @SerialName("description") val description: String?,
     @SerialName("image_url") val imageUrl: String,

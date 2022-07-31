@@ -3,15 +3,15 @@ package shows.kristijanmitrov.model.api
 import Meta
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import shows.kristijanmitrov.model.Show
+import shows.kristijanmitrov.model.Review
 
-data class ShowsResponse(
+data class ReviewResponse(
     val isSuccessful: Boolean,
-    val body: ShowsResponseBody? = null
+    val body: ReviewResponseBody? = null
 )
 
 @Serializable
-data class ShowsResponseBody(
-    @SerialName("shows") val shows: ArrayList<Show>,
+data class ReviewResponseBody(
+    @SerialName("reviews") val reviews: ArrayList<Review>,
     @SerialName("meta") val meta: Meta
 )

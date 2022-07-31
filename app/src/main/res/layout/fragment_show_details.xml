@@ -14,14 +14,15 @@
         android:elevation="4dp"
         android:background="@color/white"
         app:navigationIcon="?attr/homeAsUpIndicator">
+
         <TextView
             android:id="@+id/toolbarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="24sp"
             android:textColor="@color/dark_gray"
-            tools:text="@string/stranger_things"
             android:visibility="invisible"
+            tools:text="@string/stranger_things"
             />
     </com.google.android.material.appbar.MaterialToolbar>
 
@@ -123,6 +124,38 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:listitem="@layout/view_review_item"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/previousButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:backgroundTint="@color/submit_button_background_color"
+                        android:textColor="@color/white"
+                        android:layout_gravity="center"
+                        android:text="@string/previous"
+                        app:cornerRadius="50dp"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/nextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:backgroundTint="@color/submit_button_background_color"
+                        android:textColor="@color/white"
+                        android:text="@string/next"
+                        app:cornerRadius="50dp"/>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

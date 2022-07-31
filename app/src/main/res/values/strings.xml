@@ -46,4 +46,7 @@
     <string name="email_is_already_taken">Email is already taken!</string>
     <string name="login_error">Invalid login credentials. Please try again.</string>
     <string name="registration_error">Registration was unsuccessful!</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
 </resources>

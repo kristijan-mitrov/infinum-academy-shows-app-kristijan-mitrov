@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RatingBar
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,6 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowDetailsBinding
 import shows.kristijanmitrov.model.User
+import shows.kristijanmitrov.networking.ApiModule
 import shows.kristijanmitrov.ui.ReviewAdapter
 import shows.kristijanmitrov.viewModel.ShowDetailsViewModel
 
@@ -32,6 +34,11 @@ class ShowDetailsFragment : Fragment() {
     private val viewModel by viewModels<ShowDetailsViewModel>()
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var user: User
+    private lateinit var accessToken: String
+    private lateinit var client: String
+    private lateinit var expiry: String
+    private lateinit var uid: String
+    private var currentPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +49,10 @@ class ShowDetailsFragment : Fragment() {
         val email = sharedPreferences.getString(Constants.EMAIL, null)
         val imageUrl = sharedPreferences.getString(Constants.IMAGE, null)
 
-        if(id == null || email == null){
+        if (id == null || email == null) {
             val directions = ShowsFragmentDirections.toLoginFragment()
             findNavController().navigate(directions)
-        }else user = User(id, email, imageUrl)
+        } else user = User(id, email, imageUrl)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -56,7 +63,22 @@ class ShowDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.init(args.show)
+        ApiModule.initRetrofit(requireContext())
+
+        val _accessToken = sharedPreferences.getString(Constants.ACCESS_TOKEN, null)
+        val _client = sharedPreferences.getString(Constants.CLIENT, null)
+        val _expiry = sharedPreferences.getString(Constants.CLIENT, null)
+        val _uid = sharedPreferences.getString(Constants.UID, null)
+
+        if(_accessToken == null || _client == null || _expiry == null || _uid == null){
+            findNavController().popBackStack()
+        }else{
+            accessToken = _accessToken
+            client = _client
+            expiry = _expiry
+            uid = _uid
+            viewModel.init(args.show, accessToken, client, expiry, uid)
+        }
 
         viewModel.show.observe(viewLifecycleOwner) { show ->
             with(binding) {
@@ -64,16 +86,12 @@ class ShowDetailsFragment : Fragment() {
                 title.text = show.title
                 Glide.with(requireContext()).load(show.imageUrl).into(binding.image)
                 descriptionText.text = show.description
-                if(show.noOfReviews > 0)
+                if (show.noOfReviews > 0 && show.averageRating != null) {
                     reviewText.text = getString(R.string.d_reviews_2f_average, show.noOfReviews, show.averageRating)
-            }
-        }
-
-        viewModel.ratingBar.observe(viewLifecycleOwner) { averageRating ->
-            with(binding) {
-                ratingBar.rating = averageRating
-                emptyStateLayout.isVisible = false
-                reviewPanel.isVisible = true
+                    ratingBar.rating = show.averageRating
+                    emptyStateLayout.isVisible = false
+                    reviewPanel.isVisible = true
+                }
             }
         }
 
@@ -81,9 +99,38 @@ class ShowDetailsFragment : Fragment() {
             adapter.submitList(reviews)
         }
 
+        viewModel.getReviewsResultLiveData().observe(viewLifecycleOwner){ ReviewsResponse ->
+            if(ReviewsResponse.isSuccessful){
+                ReviewsResponse.body?.let {
+                    binding.nextButton.isEnabled = currentPage < ReviewsResponse.body.meta.pagination.pages
+                    binding.previousButton.isEnabled = currentPage > 1
+
+                    adapter.submitList(it.reviews)
+                    Toast.makeText(requireContext(), "Reviews set", Toast.LENGTH_SHORT).show()
+                }
+            }else
+                Toast.makeText(requireContext(), "Reviews not set", Toast.LENGTH_SHORT).show()
+        }
+
         initToolbar()
         initReviewRecycler()
         initWriteReviewButton()
+        initPreviousButton()
+        initNextButton()
+    }
+
+    private fun initNextButton() {
+        binding.nextButton.setOnClickListener {
+            currentPage += 1
+            viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
+        }
+    }
+
+    private fun initPreviousButton() {
+        binding.previousButton.setOnClickListener {
+            currentPage -= 1
+            viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
+        }
     }
 
     private fun initToolbar() = with(binding) {
@@ -120,7 +167,7 @@ class ShowDetailsFragment : Fragment() {
 
         //init submit button
         bottomSheetBinding.submitButton.setOnClickListener {
-            viewModel.addReview(user, bottomSheetBinding.commentText.text.toString(), bottomSheetBinding.ratingBar.rating.toInt())
+            viewModel.addReview(bottomSheetBinding.ratingBar.rating.toInt(), bottomSheetBinding.commentText.text.toString(), args.show, accessToken, client, expiry, uid)
             dialog.dismiss()
         }
 

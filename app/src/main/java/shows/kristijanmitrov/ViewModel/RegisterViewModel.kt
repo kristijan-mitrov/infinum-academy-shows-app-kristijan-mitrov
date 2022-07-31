@@ -7,7 +7,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import shows.kristijanmitrov.infinumacademyshows.R
-import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.model.api.RegisterRequest
 import shows.kristijanmitrov.model.api.RegisterResponse
 import shows.kristijanmitrov.model.api.RegisterResponseBody
@@ -40,23 +39,9 @@ class RegisterViewModel : ViewModel() {
         ApiModule.retrofit.register(registerRequest)
             .enqueue(object : Callback<RegisterResponseBody> {
                 override fun onResponse(call: Call<RegisterResponseBody>, response: Response<RegisterResponseBody>) {
-                    val user = response.body()?.user?.let { user ->
-                        User(
-                            id = user.id,
-                            email = user.email,
-                            imageUrl = user.imageUrl
-                        )
-                    }
-
-                    val body = user?.let {
-                        RegisterResponseBody(
-                            user = it
-                        )
-                    }
-
                     val registerResponse = RegisterResponse(
                         isSuccessful = response.isSuccessful,
-                        body = body
+                        body = response.body()
                     )
                     registrationResponseLiveData.value = registerResponse
                     if (!response.isSuccessful) _emailError.value = R.string.email_is_already_taken
