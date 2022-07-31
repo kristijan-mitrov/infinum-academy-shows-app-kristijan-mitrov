@@ -3,7 +3,7 @@ package shows.kristijanmitrov.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import shows.kristijanmitrov.infinumacademyshows.R
+import com.bumptech.glide.Glide
 import shows.kristijanmitrov.infinumacademyshows.databinding.ViewShowItemBinding
 import shows.kristijanmitrov.model.Show
 
@@ -37,8 +37,8 @@ class ShowsAdapter(
 
         fun bind(item: Show) = with(binding) {
             title.text = item.title
-            descriptionText.text = item.descriptionText
-            image.setImageResource(item.image)
+            descriptionText.text = item.description
+            Glide.with(binding.image.context).load(item.imageUrl).into(binding.image)
             card.setOnClickListener{
                 onItemClickCallback(item)
             }

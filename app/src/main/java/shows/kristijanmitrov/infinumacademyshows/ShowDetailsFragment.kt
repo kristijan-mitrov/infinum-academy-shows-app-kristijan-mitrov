@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowDetailsBinding
@@ -61,8 +62,8 @@ class ShowDetailsFragment : Fragment() {
             with(binding) {
                 toolbarTitle.text = show.title
                 title.text = show.title
-                image.setImageResource(show.image)
-                descriptionText.text = show.descriptionText
+                Glide.with(requireContext()).load(show.imageUrl).into(binding.image)
+                descriptionText.text = show.description
             }
         }
 

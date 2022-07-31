@@ -25,6 +25,7 @@ import java.io.File
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogProfileBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowsBinding
 import shows.kristijanmitrov.model.User
+import shows.kristijanmitrov.networking.ApiModule
 import shows.kristijanmitrov.ui.ShowsAdapter
 import shows.kristijanmitrov.viewModel.ShowsViewModel
 
@@ -71,7 +72,6 @@ class ShowsFragment : Fragment() {
             val directions = ShowsFragmentDirections.toLoginFragment()
             findNavController().navigate(directions)
         }else user = User(username, email, profilePhoto)
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -82,10 +82,20 @@ class ShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        ApiModule.initRetrofit(requireContext())
+
         //Observers
         viewModel.profilePhoto.observe(viewLifecycleOwner){ profilePhoto ->
             binding.profilePhoto.setImageURI(profilePhoto)
             bottomSheetBinding.profilePhoto.setImageURI(profilePhoto)
+        }
+
+        viewModel.getShowsResultLiveData().observe(viewLifecycleOwner){ ShowsResultData ->
+            if(ShowsResultData.isSuccessful){
+                adapter.setShows(ShowsResultData.shows)
+                Toast.makeText(requireContext(), "Shows set", Toast.LENGTH_SHORT).show()
+            }else
+                Toast.makeText(requireContext(), "Shows not set", Toast.LENGTH_SHORT).show()
         }
 
         initToolbar()
@@ -231,13 +241,21 @@ class ShowsFragment : Fragment() {
         binding.showsRecycler.layoutManager = LinearLayoutManager(activity)
         binding.showsRecycler.adapter = adapter
 
-        adapter.setShows(viewModel.showsList)
+        val accessToken = sharedPreferences.getString(Constants.ACCESS_TOKEN, null)
+        val client = sharedPreferences.getString(Constants.CLIENT, null)
+        val expiry = sharedPreferences.getString(Constants.CLIENT, null)
+        val uid = sharedPreferences.getString(Constants.UID, null)
+
+        if(accessToken == null || client == null || expiry == null || uid == null){
+            val directions = ShowsFragmentDirections.toLoginFragment()
+            findNavController().navigate(directions)
+        }else viewModel.init(accessToken, client, expiry, uid)
     }
 
     private fun initShowHideButton() = with(binding) {
         binding.showHideButton.setOnClickListener {
             if (adapter.itemCount == 0) {
-                adapter.setShows(viewModel.showsList)
+//                adapter.setShows(viewModel.showsList)
                 showsRecycler.isVisible = true
                 emptyStateLayout.isVisible = false
                 showHideButton.text = getString(R.string.hide)
