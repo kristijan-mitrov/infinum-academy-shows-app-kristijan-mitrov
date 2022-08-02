@@ -6,6 +6,8 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.io.File
+import java.io.IOException
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogProfileBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowsBinding
 import shows.kristijanmitrov.model.User
@@ -48,7 +51,8 @@ class ShowsFragment : Fragment() {
     private val takeImageResult = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
         if (isSuccess) {
             latestTmpUri?.let { uri ->
-                viewModel.onProfilePhotoChanged(uri, accessToken, client, expiry, uid)
+                val file = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "avatar.jpg")
+                viewModel.onProfilePhotoChanged(file, accessToken, client, expiry, uid)
             }
         }
     }
@@ -56,7 +60,7 @@ class ShowsFragment : Fragment() {
 
 private val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
     uri?.let {
-        viewModel.onProfilePhotoChanged(uri, accessToken, client, expiry, uid)
+        //viewModel.onProfilePhotoChanged(uri, accessToken, client, expiry, uid)
     }
 }
 
@@ -191,17 +195,29 @@ private fun showProfileBottomSheet() {
     dialog.show()
 }
 
-private fun getTmpFileUri(): Uri {
-    val tmpFile = File.createTempFile(Constants.IMAGE, ".png", requireContext().filesDir).apply {
-        createNewFile()
-    }
+private fun getTmpFileUri(): Uri? {
+    val tmpFile = createImageFile(requireContext()) ?: return null
 
     return FileProvider.getUriForFile(requireContext(), "${BuildConfig.APPLICATION_ID}.provider", tmpFile)
 }
 
+fun createImageFile(context: Context): File? {
+    try {
+        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "avatar.jpg")
+        if (file.exists().not() && file.createNewFile().not()) {
+            Log.e("FileUtil", "Failed to create image file.")
+            return null
+        }
+        return file
+    } catch (e: IOException) {
+        Log.e("FileUtil", e.message.orEmpty())
+        return null
+    }
+}
+
 private fun takeImage() {
     lifecycleScope.launchWhenStarted {
-        getTmpFileUri().let { uri ->
+        getTmpFileUri()?.let { uri ->
             latestTmpUri = uri
             takeImageResult.launch(uri)
         }

@@ -33,10 +33,7 @@ class ShowsViewModel : ViewModel() {
         return updateUserResponseLiveData
     }
 
-    fun onProfilePhotoChanged(uri: Uri, accessToken: String, client: String, expiry: String, uid: String) {
-        uri.path?.let { path ->
-            val file = File(path)
-
+    fun onProfilePhotoChanged(file: File, accessToken: String, client: String, expiry: String, uid: String) {
             ApiModule.retrofit.updateUser(
                 accessToken = accessToken,
                 client = client,
@@ -45,7 +42,7 @@ class ShowsViewModel : ViewModel() {
                 image = MultipartBody.Part.createFormData(
                     "image",
                     file.name,
-                    file.asRequestBody("image/png".toMediaType())
+                    file.asRequestBody("multipart/form-data".toMediaType())
                 )
             ).enqueue(object : Callback<UpdateUserResponseBody> {
                 override fun onResponse(call: Call<UpdateUserResponseBody>, response: Response<UpdateUserResponseBody>) {
@@ -67,7 +64,7 @@ class ShowsViewModel : ViewModel() {
                     updateUserResponseLiveData.value = updateUserResponse
                 }
             })
-        }
+
     }
 
     fun init(accessToken: String, client: String, expiry: String, uid: String) {

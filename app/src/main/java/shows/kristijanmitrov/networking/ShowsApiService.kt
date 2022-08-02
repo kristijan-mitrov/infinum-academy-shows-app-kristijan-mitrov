@@ -60,7 +60,6 @@ interface ShowsApiService {
         @Body request: AddReviewRequest
     ): Call<AddReviewResponseBody>
 
-    @Headers("token-type: Bearer")
     @Multipart
     @PUT("/users")
     fun updateUser(
