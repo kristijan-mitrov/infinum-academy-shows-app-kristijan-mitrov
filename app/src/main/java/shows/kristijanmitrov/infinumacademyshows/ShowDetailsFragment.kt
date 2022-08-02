@@ -104,7 +104,8 @@ class ShowDetailsFragment : Fragment() {
                 ReviewsResponse.body?.let {
                     binding.nextButton.isEnabled = currentPage < ReviewsResponse.body.meta.pagination.pages
                     binding.previousButton.isEnabled = currentPage > 1
-
+                    binding.shimmerPlaceholder.stopShimmerAnimation()
+                    binding.shimmerPlaceholder.visibility = View.GONE
                     adapter.submitList(it.reviews)
                     Toast.makeText(requireContext(), "Reviews set", Toast.LENGTH_SHORT).show()
                 }

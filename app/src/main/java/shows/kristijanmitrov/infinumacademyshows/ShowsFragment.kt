@@ -98,6 +98,8 @@ class ShowsFragment : Fragment() {
         viewModel.getShowsResultLiveData().observe(viewLifecycleOwner) { ShowsResponse ->
             if (ShowsResponse.isSuccessful) {
                 ShowsResponse.body?.let {
+                    binding.shimmerPlaceholder.stopShimmerAnimation()
+                    binding.shimmerPlaceholder.visibility = View.GONE
                     adapter.setShows(it.shows)
                     Toast.makeText(requireContext(), "Shows set", Toast.LENGTH_SHORT).show()
                 }
