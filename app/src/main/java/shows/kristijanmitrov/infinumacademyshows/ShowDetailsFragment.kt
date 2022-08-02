@@ -119,17 +119,25 @@ class ShowDetailsFragment : Fragment() {
         initNextButton()
     }
 
-    private fun initNextButton() {
-        binding.nextButton.setOnClickListener {
+    private fun initNextButton() = with(binding) {
+        nextButton.setOnClickListener {
             currentPage += 1
             viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
+            nestedScrollView.post{
+                nestedScrollView.fling(0)
+                nestedScrollView.smoothScrollTo(0, 0)
+            }
         }
     }
 
-    private fun initPreviousButton() {
-        binding.previousButton.setOnClickListener {
+    private fun initPreviousButton() = with(binding) {
+        previousButton.setOnClickListener {
             currentPage -= 1
             viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
+            nestedScrollView.post{
+                nestedScrollView.fling(0)
+                nestedScrollView.smoothScrollTo(0, 0)
+            }
         }
     }
 

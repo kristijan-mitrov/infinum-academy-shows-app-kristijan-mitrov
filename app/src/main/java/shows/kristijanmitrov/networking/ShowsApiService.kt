@@ -20,6 +20,7 @@ import shows.kristijanmitrov.model.api.ReviewResponseBody
 import shows.kristijanmitrov.model.api.ShowsResponseBody
 import shows.kristijanmitrov.model.api.SignInRequest
 import shows.kristijanmitrov.model.api.SignInResponseBody
+import shows.kristijanmitrov.model.api.TopRatedShowsResponseBody
 import shows.kristijanmitrov.model.api.UpdateUserResponseBody
 
 interface ShowsApiService {
@@ -38,6 +39,15 @@ interface ShowsApiService {
         @Header("expiry") expiry: String,
         @Header("uid") uid: String,
     ): Call<ShowsResponseBody>
+
+    @Headers("token-type: Bearer")
+    @GET("/shows/top_rated")
+    fun topRatedShows(
+        @Header("access-token") accessToken: String,
+        @Header("client") client: String,
+        @Header("expiry") expiry: String,
+        @Header("uid") uid: String,
+    ): Call<TopRatedShowsResponseBody>
 
     @Headers("token-type: Bearer")
     @GET("/shows/{show_id}/reviews")

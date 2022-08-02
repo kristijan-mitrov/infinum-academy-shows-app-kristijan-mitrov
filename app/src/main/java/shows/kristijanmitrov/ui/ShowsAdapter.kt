@@ -24,12 +24,8 @@ class ShowsAdapter(
     override fun getItemCount() = items.count()
 
     fun setShows(shows: List<Show>) {
-        items.addAll(shows)
-        notifyItemInserted(items.lastIndex)
-    }
-
-    fun clearShows() {
         items.clear()
+        items.addAll(shows)
         notifyDataSetChanged()
     }
 
