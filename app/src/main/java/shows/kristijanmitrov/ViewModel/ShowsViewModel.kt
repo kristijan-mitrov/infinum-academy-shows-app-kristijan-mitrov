@@ -12,7 +12,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import shows.kristijanmitrov.model.api.ShowsResponse
 import shows.kristijanmitrov.model.api.ShowsResponseBody
-import shows.kristijanmitrov.model.api.TopRatedShowsResponse
 import shows.kristijanmitrov.model.api.TopRatedShowsResponseBody
 import shows.kristijanmitrov.model.api.UpdateUserResponse
 import shows.kristijanmitrov.model.api.UpdateUserResponseBody
@@ -20,16 +19,8 @@ import shows.kristijanmitrov.networking.ApiModule
 
 class ShowsViewModel : ViewModel() {
 
-    private val _profilePhoto: MutableLiveData<String> = MutableLiveData()
     private val showsResponseLiveData: MutableLiveData<ShowsResponse> by lazy { MutableLiveData<ShowsResponse>() }
-    private val topRatedShowsResponseLiveData: MutableLiveData<TopRatedShowsResponse> by lazy { MutableLiveData<TopRatedShowsResponse>() }
     private val updateUserResponseLiveData: MutableLiveData<UpdateUserResponse> by lazy { MutableLiveData<UpdateUserResponse>() }
-
-    val profilePhoto: LiveData<String> = _profilePhoto
-
-    fun getTopRatedShowsResultLiveData(): LiveData<TopRatedShowsResponse> {
-        return topRatedShowsResponseLiveData
-    }
 
     fun getShowsResultLiveData(): LiveData<ShowsResponse> {
         return showsResponseLiveData
@@ -57,10 +48,6 @@ class ShowsViewModel : ViewModel() {
                     body = response.body()
                 )
                 updateUserResponseLiveData.value = updateUserResponse
-
-                response.body()?.user?.imageUrl?.let { url ->
-                    _profilePhoto.value = url
-                }
             }
 
             override fun onFailure(call: Call<UpdateUserResponseBody>, t: Throwable) {

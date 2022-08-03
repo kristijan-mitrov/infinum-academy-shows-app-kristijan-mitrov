@@ -52,10 +52,10 @@ class ShowsFragment : Fragment() {
         if (isSuccess) {
             latestTmpUri?.let { uri ->
                 val file = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "avatar.jpg")
-                viewModel.onProfilePhotoChanged(file, accessToken, client, expiry, uid)            }
+                viewModel.onProfilePhotoChanged(file, accessToken, client, expiry, uid)
+            }
         }
     }
-
 
     private val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -87,49 +87,62 @@ class ShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val _accessToken = sharedPreferences.getString(Constants.ACCESS_TOKEN, null)
+        val _client = sharedPreferences.getString(Constants.CLIENT, null)
+        val _expiry = sharedPreferences.getString(Constants.CLIENT, null)
+        val _uid = sharedPreferences.getString(Constants.UID, null)
+
+        if (_accessToken == null || _client == null || _expiry == null || _uid == null) {
+            val directions = ShowsFragmentDirections.toLoginFragment()
+            findNavController().navigate(directions)
+        } else {
+            accessToken = _accessToken
+            client = _client
+            expiry = _expiry
+            uid = _uid
+        }
+
         ApiModule.initRetrofit(requireContext())
 
-        //Observers
-        viewModel.profilePhoto.observe(viewLifecycleOwner) { url ->
-            Glide.with(requireContext()).load(url).into(binding.profilePhoto)
-            Glide.with(requireContext()).load(url).into(bottomSheetBinding.profilePhoto)
-        }
-
-        viewModel.getShowsResultLiveData().observe(viewLifecycleOwner) { ShowsResponse ->
-            if (ShowsResponse.isSuccessful) {
-                ShowsResponse.body?.let {
-                    binding.shimmerPlaceholder.stopShimmerAnimation()
-                    binding.shimmerPlaceholder.visibility = View.GONE
-                    adapter.setShows(it.shows)
-                    Toast.makeText(requireContext(), "Shows set", Toast.LENGTH_SHORT).show()
-                }
-            } else
-                Toast.makeText(requireContext(), "Shows not set", Toast.LENGTH_SHORT).show()
-        }
-
-        viewModel.getUpdateUserResultLiveData().observe(viewLifecycleOwner) { UpdateUserResponse ->
-            if (UpdateUserResponse.isSuccessful) {
-                UpdateUserResponse.body?.let {
-                    Toast.makeText(requireContext(), "User updated", Toast.LENGTH_SHORT).show()
-                }
-            } else
-                Toast.makeText(requireContext(), "User not updated", Toast.LENGTH_SHORT).show()
-        }
-
+        initObservers()
         initToolbar()
         initShowRecycler()
         initShowHideButton()
         initTopRatedChip()
     }
 
+    private fun initObservers() = with(binding) {
+        viewModel.getShowsResultLiveData().observe(viewLifecycleOwner) { ShowsResponse ->
+            if (ShowsResponse.isSuccessful) {
+                ShowsResponse.body?.let {
+                    shimmerPlaceholder.stopShimmerAnimation()
+                    shimmerPlaceholder.visibility = View.GONE
+                    adapter.submitList(it.shows)
+                }
+            } else
+                Toast.makeText(requireContext(), "Shows failed to load", Toast.LENGTH_SHORT).show()
+        }
+
+        viewModel.getUpdateUserResultLiveData().observe(viewLifecycleOwner) { UpdateUserResponse ->
+            if (UpdateUserResponse.isSuccessful) {
+                Glide.with(requireContext()).load(UpdateUserResponse.body?.user?.imageUrl).into(profilePhoto)
+                Glide.with(requireContext()).load(UpdateUserResponse.body?.user?.imageUrl).into(bottomSheetBinding.profilePhoto)
+            } else
+                Toast.makeText(requireContext(), "Profile photo failed to update", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun initTopRatedChip() = with(binding) {
         topRated.setOnClickListener {
-            if(topRated.isChecked){
+            if (topRated.isChecked) {
                 viewModel.topRated(accessToken, client, expiry, uid)
-                Toast.makeText(requireContext(), "All shows", Toast.LENGTH_SHORT).show()
-            }else{
+                showsRecycler.fling(0,0)
+                showsRecycler.smoothScrollToPosition(0)
+            }
+            else {
                 viewModel.init(accessToken, client, expiry, uid)
-                Toast.makeText(requireContext(), "Top rated", Toast.LENGTH_SHORT).show()
+                showsRecycler.fling(0,0)
+                showsRecycler.smoothScrollToPosition(0)
             }
         }
     }
@@ -275,31 +288,15 @@ class ShowsFragment : Fragment() {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     ) == PackageManager.PERMISSION_GRANTED
 
-    private fun initShowRecycler() {
+    private fun initShowRecycler() = with(binding) {
         adapter = ShowsAdapter { show ->
             val directions = ShowsFragmentDirections.toShowDetailsFragment(show)
             findNavController().navigate(directions)
         }
 
-        binding.showsRecycler.layoutManager = LinearLayoutManager(activity)
-        binding.showsRecycler.adapter = adapter
-
-        val _accessToken = sharedPreferences.getString(Constants.ACCESS_TOKEN, null)
-        val _client = sharedPreferences.getString(Constants.CLIENT, null)
-        val _expiry = sharedPreferences.getString(Constants.CLIENT, null)
-        val _uid = sharedPreferences.getString(Constants.UID, null)
-
-        if (_accessToken == null || _client == null || _expiry == null || _uid == null) {
-            val directions = ShowsFragmentDirections.toLoginFragment()
-            findNavController().navigate(directions)
-        } else {
-            accessToken = _accessToken
-            client = _client
-            expiry = _expiry
-            uid = _uid
-            viewModel.init(accessToken, client, expiry, uid)
-        }
-
+        showsRecycler.layoutManager = LinearLayoutManager(activity)
+        showsRecycler.adapter = adapter
+        viewModel.init(accessToken, client, expiry, uid)
     }
 
     private fun initShowHideButton() = with(binding) {

@@ -25,12 +25,6 @@ import shows.kristijanmitrov.model.api.UpdateUserResponseBody
 
 interface ShowsApiService {
 
-    @POST("/users")
-    fun register(@Body request: RegisterRequest): Call<RegisterResponseBody>
-
-    @POST("/users/sign_in")
-    fun signIn(@Body request: SignInRequest): Call<SignInResponseBody>
-
     @Headers("token-type: Bearer")
     @GET("/shows")
     fun shows(
@@ -59,6 +53,12 @@ interface ShowsApiService {
         @Header("expiry") expiry: String,
         @Header("uid") uid: String,
     ): Call<ReviewResponseBody>
+
+    @POST("/users")
+    fun register(@Body request: RegisterRequest): Call<RegisterResponseBody>
+
+    @POST("/users/sign_in")
+    fun signIn(@Body request: SignInRequest): Call<SignInResponseBody>
 
     @Headers("token-type: Bearer")
     @POST("/reviews")

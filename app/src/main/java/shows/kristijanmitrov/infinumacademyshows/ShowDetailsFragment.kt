@@ -42,17 +42,7 @@ class ShowDetailsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
-
-        val id = sharedPreferences.getString(Constants.ID, null)
-        val email = sharedPreferences.getString(Constants.EMAIL, null)
-        val imageUrl = sharedPreferences.getString(Constants.IMAGE, null)
-
-        if (id == null || email == null) {
-            val directions = ShowsFragmentDirections.toLoginFragment()
-            findNavController().navigate(directions)
-        } else user = User(id, email, imageUrl)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -69,50 +59,23 @@ class ShowDetailsFragment : Fragment() {
         val _client = sharedPreferences.getString(Constants.CLIENT, null)
         val _expiry = sharedPreferences.getString(Constants.CLIENT, null)
         val _uid = sharedPreferences.getString(Constants.UID, null)
+        val id = sharedPreferences.getString(Constants.ID, null)
+        val email = sharedPreferences.getString(Constants.EMAIL, null)
+        val imageUrl = sharedPreferences.getString(Constants.IMAGE, null)
 
-        if(_accessToken == null || _client == null || _expiry == null || _uid == null){
+        if (id == null || email == null || _accessToken == null || _client == null || _expiry == null || _uid == null) {
             findNavController().popBackStack()
-        }else{
+        } else {
             accessToken = _accessToken
             client = _client
             expiry = _expiry
             uid = _uid
-            viewModel.init(args.show, accessToken, client, expiry, uid)
+            user = User(id, email, imageUrl)
         }
 
-        viewModel.show.observe(viewLifecycleOwner) { show ->
-            with(binding) {
-                toolbarTitle.text = show.title
-                title.text = show.title
-                Glide.with(requireContext()).load(show.imageUrl).into(binding.image)
-                descriptionText.text = show.description
-                if (show.noOfReviews > 0 && show.averageRating != null) {
-                    reviewText.text = getString(R.string.d_reviews_2f_average, show.noOfReviews, show.averageRating)
-                    ratingBar.rating = show.averageRating
-                    emptyStateLayout.isVisible = false
-                    reviewPanel.isVisible = true
-                }
-            }
-        }
+        viewModel.init(args.show, accessToken, client, expiry, uid)
 
-        viewModel.reviews.observe(viewLifecycleOwner) { reviews ->
-            adapter.submitList(reviews)
-        }
-
-        viewModel.getReviewsResultLiveData().observe(viewLifecycleOwner){ ReviewsResponse ->
-            if(ReviewsResponse.isSuccessful){
-                ReviewsResponse.body?.let {
-                    binding.nextButton.isEnabled = currentPage < ReviewsResponse.body.meta.pagination.pages
-                    binding.previousButton.isEnabled = currentPage > 1
-                    binding.shimmerPlaceholder.stopShimmerAnimation()
-                    binding.shimmerPlaceholder.visibility = View.GONE
-                    adapter.submitList(it.reviews)
-                    Toast.makeText(requireContext(), "Reviews set", Toast.LENGTH_SHORT).show()
-                }
-            }else
-                Toast.makeText(requireContext(), "Reviews not set", Toast.LENGTH_SHORT).show()
-        }
-
+        initObservers()
         initToolbar()
         initReviewRecycler()
         initWriteReviewButton()
@@ -120,11 +83,43 @@ class ShowDetailsFragment : Fragment() {
         initNextButton()
     }
 
+    private fun initObservers() = with(binding) {
+        viewModel.show.observe(viewLifecycleOwner) { show ->
+            toolbarTitle.text = show.title
+            title.text = show.title
+            Glide.with(requireContext()).load(show.imageUrl).into(binding.image)
+            descriptionText.text = show.description
+            if (show.noOfReviews > 0 && show.averageRating != null) {
+                reviewText.text = getString(R.string.d_reviews_2f_average, show.noOfReviews, show.averageRating)
+                ratingBar.rating = show.averageRating
+                emptyStateLayout.isVisible = false
+                reviewPanel.isVisible = true
+            }
+        }
+
+        viewModel.reviews.observe(viewLifecycleOwner) { reviews ->
+            adapter.submitList(reviews)
+        }
+
+        viewModel.getReviewsResultLiveData().observe(viewLifecycleOwner) { ReviewsResponse ->
+            if (ReviewsResponse.isSuccessful) {
+                ReviewsResponse.body?.let {
+                    nextButton.isEnabled = currentPage < ReviewsResponse.body.meta.pagination.pages
+                    previousButton.isEnabled = currentPage > 1
+                    shimmerPlaceholder.stopShimmerAnimation()
+                    shimmerPlaceholder.visibility = View.GONE
+                    adapter.submitList(it.reviews)
+                }
+            } else
+                Toast.makeText(requireContext(), "Reviews failed to load", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun initNextButton() = with(binding) {
         nextButton.setOnClickListener {
             currentPage += 1
             viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
-            nestedScrollView.post{
+            nestedScrollView.post {
                 nestedScrollView.fling(0)
                 nestedScrollView.smoothScrollTo(0, 0)
             }
@@ -135,7 +130,7 @@ class ShowDetailsFragment : Fragment() {
         previousButton.setOnClickListener {
             currentPage -= 1
             viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
-            nestedScrollView.post{
+            nestedScrollView.post {
                 nestedScrollView.fling(0)
                 nestedScrollView.smoothScrollTo(0, 0)
             }
@@ -176,7 +171,15 @@ class ShowDetailsFragment : Fragment() {
 
         //init submit button
         bottomSheetBinding.submitButton.setOnClickListener {
-            viewModel.addReview(bottomSheetBinding.ratingBar.rating.toInt(), bottomSheetBinding.commentText.text.toString(), args.show, accessToken, client, expiry, uid)
+            viewModel.addReview(
+                bottomSheetBinding.ratingBar.rating.toInt(),
+                bottomSheetBinding.commentText.text.toString(),
+                args.show,
+                accessToken,
+                client,
+                expiry,
+                uid
+            )
             dialog.dismiss()
         }
 
