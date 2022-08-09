@@ -17,12 +17,12 @@ class ShowDetailsViewModel: ViewModel() {
     private val _show: MutableLiveData<Show> = MutableLiveData()
     private val _ratingData: MutableLiveData<RatingData> = MutableLiveData()
     private val _ratingBar: MutableLiveData<Float> = MutableLiveData()
-    private val _reviews: MutableLiveData<MutableList<Review>> = MutableLiveData()
+    private val _reviews: MutableLiveData<List<Review>> = MutableLiveData()
 
     val show: LiveData<Show> = _show
     val ratingData: LiveData<RatingData> = _ratingData
     val ratingBar: LiveData<Float> = _ratingBar
-    val reviews: LiveData<MutableList<Review>> = _reviews
+    val reviews: LiveData<List<Review>> = _reviews
 
 
     fun init(show: Show){
@@ -39,6 +39,6 @@ class ShowDetailsViewModel: ViewModel() {
 
         _ratingData.value = RatingData(averageRating, numOfReviews)
         _ratingBar.value = averageRating
-        _reviews.value = reviewList
+        _reviews.value = reviewList.toMutableList()
     }
 }
