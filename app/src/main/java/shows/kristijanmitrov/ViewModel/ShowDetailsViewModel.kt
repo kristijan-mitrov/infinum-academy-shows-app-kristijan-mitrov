@@ -29,10 +29,6 @@ class ShowDetailsViewModel: ViewModel() {
         return reviewsResponseLiveData
     }
 
-    fun getAddReviewsResultLiveData(): LiveData<AddReviewResponse> {
-        return addReviewsResponseLiveData
-    }
-
     fun getReviews(showId: String, page: Int, accessToken: String, client: String, expiry: String, uid: String) {
 
         ApiModule.retrofit.reviews(showId, page, accessToken, client, expiry, uid)

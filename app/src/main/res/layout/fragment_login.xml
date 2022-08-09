@@ -8,48 +8,9 @@
     android:layout_height="match_parent"
     android:background="@color/primary">
 
-    <ImageView
-        android:id="@+id/topLeftIllustration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-14dp"
-        android:contentDescription="@string/illustration"
-        android:src="@drawable/top_left_illustration"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <ImageView
-        android:id="@+id/topRightIllustration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/top_right_illustration"
-        android:contentDescription="@string/illustration"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <ImageView
-        android:id="@+id/triangle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:layout_marginStart="32dp"
-        android:contentDescription="@string/illustration"
-        android:src="@drawable/triangle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topLeftIllustration"/>
-
-    <TextView
-        android:id="@+id/shows"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_marginStart="4dp"
-        android:text="@string/shows"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/triangle"
-        app:layout_constraintTop_toBottomOf="@+id/topLeftIllustration"/>
+    <include
+        layout="@layout/login_register_top"
+        android:id="@+id/top"/>
 
     <TextView
         android:id="@+id/loginText"
@@ -62,7 +23,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topRightIllustration"/>
+        app:layout_constraintTop_toBottomOf="@+id/top"/>
 
     <TextView
         android:id="@+id/descriptionText"
