@@ -18,12 +18,14 @@ import shows.kristijanmitrov.networking.ApiModule
 class ShowDetailsViewModel: ViewModel() {
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
+
     private val _reviews: MutableLiveData<MutableList<Review>> = MutableLiveData()
     private val reviewsResponseLiveData: MutableLiveData<ReviewResponse> by lazy { MutableLiveData<ReviewResponse>() }
     private val addReviewsResponseLiveData: MutableLiveData<AddReviewResponse> by lazy { MutableLiveData<AddReviewResponse>() }
 
     val show: LiveData<Show> = _show
     val reviews: LiveData<MutableList<Review>> = _reviews
+
 
     fun getReviewsResultLiveData(): LiveData<ReviewResponse> {
         return reviewsResponseLiveData
@@ -84,7 +86,6 @@ class ShowDetailsViewModel: ViewModel() {
                     val addReviewResponse = AddReviewResponse(
                         isSuccessful = false
                     )
-
                     addReviewsResponseLiveData.value = addReviewResponse                }
             })
     }
