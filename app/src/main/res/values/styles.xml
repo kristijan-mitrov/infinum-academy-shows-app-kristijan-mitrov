@@ -23,4 +23,10 @@
         parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/rounded_dialog</item>
     </style>
+
+    <style name="CustomChipStyle" parent="@style/Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="chipIconTint">@color/chip_foreground_color</item>
+        <item name="android:textColor">@color/chip_foreground_color</item>
+    </style>
 </resources>

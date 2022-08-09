@@ -20,6 +20,33 @@
             app:popUpTo="@+id/navigation_graph"
             app:popUpToInclusive="true">
         </action>
+        <action
+            android:id="@+id/toRegisterFragment"
+            app:destination="@id/registerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <argument
+            android:name="initial"
+            app:argType="boolean"
+            android:defaultValue="true"/>
     </fragment>
     <include app:graph="@navigation/navigation_shows"/>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="shows.kristijanmitrov.infinumacademyshows.RegisterFragment"
+        android:label="RegisterFragment"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/toLoginFragment"
+            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/navigation_graph"
+            app:popUpToInclusive="true"/>
+    </fragment>
 </navigation>
