@@ -9,7 +9,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import shows.kristijanmitrov.database.ReviewEntity
 import shows.kristijanmitrov.database.ShowsDatabase
-import shows.kristijanmitrov.database.UserEntity
 import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.model.api.AddReviewRequest
 import shows.kristijanmitrov.model.api.AddReviewResponse
@@ -24,7 +23,6 @@ class ShowDetailsViewModel(
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
     private val reviewsResponseLiveData: MutableLiveData<ReviewResponse> by lazy { MutableLiveData<ReviewResponse>() }
-    private val reviewsLiveData: MutableLiveData<List<ReviewEntity>> by lazy { MutableLiveData<List<ReviewEntity>>() }
     private val addReviewsResponseLiveData: MutableLiveData<AddReviewResponse> by lazy { MutableLiveData<AddReviewResponse>() }
 
     val show: LiveData<Show> = _show
@@ -33,78 +31,58 @@ class ShowDetailsViewModel(
         return reviewsResponseLiveData
     }
 
-    fun getAddReviewsResultLiveData(): LiveData<AddReviewResponse> {
-        return addReviewsResponseLiveData
+    fun getReviewsLiveData(showId: String): LiveData<List<ReviewEntity>> {
+        return database.reviewDao().getAllReviewsForShow(showId)
     }
 
-    fun getReviewsLiveData(showId: String, page: Int): LiveData<List<ReviewEntity>> {
-        return database.reviewDao().getAllReviewsForShow(showId, page)
-    }
-
-    fun getUserById(userId: String): LiveData<UserEntity> {
-        return database.userDao().getUser(userId)
-    }
-
-    fun getReviews(showId: String, page: Int, accessToken: String, client: String, expiry: String, uid: String) {
-
+    fun getPage(showId: String, page: Int, accessToken: String, client: String, expiry: String, uid: String){
         ApiModule.retrofit.reviews(showId, page, accessToken, client, expiry, uid)
             .enqueue(object : Callback<ReviewResponseBody> {
                 override fun onResponse(call: Call<ReviewResponseBody>, response: Response<ReviewResponseBody>) {
+                    response.body()?.meta?.pagination?.pages?.let{
+                        if(page < it)
+                            getPage(showId, page+1, accessToken, client, expiry, uid)
+                    }
+
                     val reviews = response.body()?.reviews
                     reviews?.let {
 
-                        Executors.newSingleThreadExecutor().execute {
-                            //Insert reviews in database
-                            database.reviewDao().insertAllReviews(
-                                reviews.map { review ->
-                                    ReviewEntity(
-                                        review.id,
-                                        review.comment,
-                                        review.rating,
-                                        review.showId.toString(),
-                                        review.user.id,
-                                        page
-                                    )
-                                }
-                            )
-
-                            //Insert users in database
-                            database.userDao().insertAllUsers(
-                                reviews.map { review ->
-                                    UserEntity(review.user.id, review.user.email, review.user.imageUrl)
-                                }
-                            )
-
-                        }
-
-                        //Setting reviews Live Data
-                        reviewsLiveData.value = reviews.map { review ->
+                        val reviewEntities = reviews.map { review ->
                             ReviewEntity(
                                 review.id,
                                 review.comment,
                                 review.rating,
                                 review.showId.toString(),
                                 review.user.id,
-                                page
+                                review.user.email,
+                                review.user.imageUrl
                             )
+                        }
+
+
+                        //Insert reviews in database
+                        Executors.newSingleThreadExecutor().execute {
+                            database.reviewDao().insertAllReviews(reviewEntities)
                         }
                     }
                 }
 
                 override fun onFailure(call: Call<ReviewResponseBody>, t: Throwable) {
-                    val reviewResponse = ReviewResponse(
-                        isSuccessful = false
-                    )
-                    reviewsResponseLiveData.value = reviewResponse
+
                 }
 
             })
+
+    }
+
+    fun getReviews(showId: String, accessToken: String, client: String, expiry: String, uid: String) {
+        getPage(showId, 1, accessToken, client, expiry, uid)
     }
 
     fun init(show: Show, accessToken: String, client: String, expiry: String, uid: String) {
         _show.value = show
 
-        getReviews(show.id, 1, accessToken, client, expiry, uid)
+        getReviews(show.id, accessToken, client, expiry, uid)
     }
 
     fun addReview(rating: Int, comment: String, show: Show, accessToken: String, client: String, expiry: String, uid: String) {
@@ -124,7 +102,7 @@ class ShowDetailsViewModel(
                     )
 
                     if (response.isSuccessful)
-                        getReviews(show.id, 1, accessToken, client, expiry, uid)
+                        getReviews(show.id, accessToken, client, expiry, uid)
 
                     addReviewsResponseLiveData.value = addReviewResponse
                 }

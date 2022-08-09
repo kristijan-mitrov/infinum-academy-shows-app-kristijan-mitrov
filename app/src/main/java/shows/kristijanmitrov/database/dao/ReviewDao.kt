@@ -10,8 +10,8 @@ import shows.kristijanmitrov.database.ReviewEntity
 @Dao
 interface ReviewDao {
 
-    @Query("SELECT * FROM review WHERE show_id IS :showId AND page IS :page")
-    fun getAllReviewsForShow(showId: String, page: Int): LiveData<List<ReviewEntity>>
+    @Query("SELECT * FROM review WHERE show_id IS :showId")
+    fun getAllReviewsForShow(showId: String): LiveData<List<ReviewEntity>>
 
     @Query("SELECT * FROM review WHERE id IS :reviewId")
     fun getReviews(reviewId: String): LiveData<ReviewEntity>

@@ -6,13 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import shows.kristijanmitrov.database.dao.ReviewDao
 import shows.kristijanmitrov.database.dao.ShowDao
-import shows.kristijanmitrov.database.dao.UserDao
 
 @Database(
     entities = [
         ShowEntity::class,
-        ReviewEntity::class,
-        UserEntity::class
+        ReviewEntity::class
     ],
     version = 1
 )
@@ -38,7 +36,6 @@ abstract class ShowsDatabase: RoomDatabase() {
 
     }
 
-    abstract fun userDao(): UserDao
     abstract fun showDao(): ShowDao
     abstract fun reviewDao(): ReviewDao
 }

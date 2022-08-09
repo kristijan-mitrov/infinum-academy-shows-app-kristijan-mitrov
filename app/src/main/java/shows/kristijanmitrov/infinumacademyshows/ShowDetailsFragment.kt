@@ -42,7 +42,6 @@ class ShowDetailsFragment : Fragment() {
     private lateinit var client: String
     private lateinit var expiry: String
     private lateinit var uid: String
-    private var currentPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +82,6 @@ class ShowDetailsFragment : Fragment() {
         initToolbar()
         initReviewRecycler()
         initWriteReviewButton()
-        initPreviousButton()
-        initNextButton()
     }
 
     private fun initObservers() = with(binding) {
@@ -101,90 +98,31 @@ class ShowDetailsFragment : Fragment() {
             }
         }
 
-        viewModel.getReviewsLiveData(args.show.id, currentPage).observe(viewLifecycleOwner) { reviews ->
+        viewModel.getReviewsLiveData(args.show.id).observe(viewLifecycleOwner) { reviews ->
             if (reviews.isNotEmpty()) {
+
                 reviewsRecycler.isVisible = true
                 emptyStateLayout.isVisible = false
-                shimmerPlaceholder.stopShimmerAnimation()
-                shimmerPlaceholder.visibility = View.GONE
-                val reviewsList = ArrayList<Review>()
-                reviews.map { review ->
-                    viewModel.getUserById(review.userId).observe(viewLifecycleOwner) { userEntity ->
-                        val user = User(userEntity.id, userEntity.email, userEntity.imageUrl)
-                        reviewsList.add(Review(review.id, review.comment, review.rating, review.showId.toInt(), user))
-                    }
-                }
-                adapter.submitList(reviewsList)
-                previousButton.isEnabled = currentPage > 1
 
+                adapter.submitList(reviews.map { review ->
+                    Review(review.id, review.comment, review.rating, review.showId.toInt(), User(review.userId, review.email, review.imageUrl))
+                })
             } else {
                 reviewsRecycler.isVisible = false
                 emptyStateLayout.isVisible = true
-                shimmerPlaceholder.stopShimmerAnimation()
-                shimmerPlaceholder.visibility = View.GONE
             }
 
+            shimmerPlaceholder.stopShimmerAnimation()
+            shimmerPlaceholder.visibility = View.GONE
         }
 
         viewModel.getReviewsResultLiveData().observe(viewLifecycleOwner) { ReviewsResponse ->
-            if (ReviewsResponse.isSuccessful) {
-                ReviewsResponse.body?.let {
-                    nextButton.isEnabled = currentPage < ReviewsResponse.body.meta.pagination.pages
-                    shimmerPlaceholder.stopShimmerAnimation()
-                    shimmerPlaceholder.visibility = View.GONE
-                    adapter.submitList(it.reviews)
-                }
-            } else {
+            if (!ReviewsResponse.isSuccessful){
                 Toast.makeText(requireContext(), "Reviews failed to load from API", Toast.LENGTH_SHORT).show()
-                viewModel.getReviewsLiveData(args.show.id, currentPage).observe(viewLifecycleOwner) { reviews ->
-                    if (reviews.isNotEmpty()) {
-                        reviewsRecycler.isVisible = true
-                        emptyStateLayout.isVisible = false
-                        shimmerPlaceholder.stopShimmerAnimation()
-                        shimmerPlaceholder.visibility = View.GONE
-                        val reviewsList = ArrayList<Review>()
-                        reviews.map { review ->
-                            viewModel.getUserById(review.userId).observe(viewLifecycleOwner) { userEntity ->
-                                val user = User(userEntity.id, userEntity.email, userEntity.imageUrl)
-                                reviewsList.add(Review(review.id, review.comment, review.rating, review.showId.toInt(), user))
-                            }
-                        }
-                        adapter.submitList(reviewsList)
-                        previousButton.isEnabled = currentPage > 1
-
-                    } else {
-                        reviewsRecycler.isVisible = false
-                        emptyStateLayout.isVisible = true
-                        shimmerPlaceholder.stopShimmerAnimation()
-                        shimmerPlaceholder.visibility = View.GONE
-                    }
-
-                }
             }
         }
     }
 
-    private fun initNextButton() = with(binding) {
-        nextButton.setOnClickListener {
-            currentPage += 1
-            viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
-            nestedScrollView.post {
-                nestedScrollView.fling(0)
-                nestedScrollView.smoothScrollTo(0, 0)
-            }
-        }
-    }
-
-    private fun initPreviousButton() = with(binding) {
-        previousButton.setOnClickListener {
-            currentPage -= 1
-            viewModel.getReviews(args.show.id, currentPage, accessToken, client, expiry, uid)
-            nestedScrollView.post {
-                nestedScrollView.fling(0)
-                nestedScrollView.smoothScrollTo(0, 0)
-            }
-        }
-    }
 
     private fun initToolbar() = with(binding) {
         //title

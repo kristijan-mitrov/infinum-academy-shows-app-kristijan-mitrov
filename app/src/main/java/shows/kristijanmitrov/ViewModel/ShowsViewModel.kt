@@ -73,9 +73,11 @@ class ShowsViewModel(
         ApiModule.retrofit.shows(accessToken, client, expiry, uid)
             .enqueue(object : Callback<ShowsResponseBody> {
                 override fun onResponse(call: Call<ShowsResponseBody>, response: Response<ShowsResponseBody>) {
+                    val shows = response.body()?.shows
 
-                    response.body()?.shows?.let {
-                        showsLiveData.value = response.body()?.shows?.map { show ->
+                    shows?.let {
+
+                        val showEntities = shows.map { show ->
                             ShowEntity(
                                 show.id,
                                 show.averageRating,
@@ -86,14 +88,14 @@ class ShowsViewModel(
                             )
                         }
 
+                        showsLiveData.value = showEntities
+
+                        //Insert shows in database
                         Executors.newSingleThreadExecutor().execute {
-                            response.body()?.shows?.map { show ->
-                                ShowEntity(show.id, show.averageRating, show.description, show.imageUrl, show.noOfReviews, show.title)
-                            }?.let { showEntity ->
-                                database.showDao().insertAllShows(showEntity)
-                            }
+                            database.showDao().insertAllShows(showEntities)
                         }
                     }
+
                 }
 
                 override fun onFailure(call: Call<ShowsResponseBody>, t: Throwable) {
