@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/showsNavigation"
@@ -7,7 +8,8 @@
     <fragment
         android:id="@+id/showsFragment"
         android:name="shows.kristijanmitrov.infinumacademyshows.ShowsFragment"
-        android:label="ShowsFragment">
+        android:label="ShowsFragment"
+        tools:layout="@layout/fragment_shows">
         <action
             android:id="@+id/toShowDetailsFragment"
             app:destination="@id/showDetailsFragment"
@@ -15,20 +17,24 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"/>
-        <argument
-            android:name="username"
-            app:argType="string"/>
+        <action
+            android:id="@+id/toLoginFragment"
+            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:launchSingleTop="true"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"
+            app:popUpTo="@+id/navigation_graph"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/showDetailsFragment"
         android:name="shows.kristijanmitrov.infinumacademyshows.ShowDetailsFragment"
-        android:label="fragment_show_details" tools:layout="@layout/fragment_show_details">
-        <argument
-            android:name="username"
-            app:argType="string"/>
+        android:label="ShowsDetailsFragment"
+        tools:layout="@layout/fragment_show_details">
         <argument
             android:name="show"
             app:argType="shows.kristijanmitrov.model.Show"/>
-
     </fragment>
 </navigation>

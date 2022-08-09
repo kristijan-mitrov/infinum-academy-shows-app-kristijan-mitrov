@@ -7,18 +7,19 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="shows.kristijanmitrov.infinumacademyshows.LoginFragment"
-        android:label="LoginFragment">
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/toShowsFragment"
             app:destination="@id/showsNavigation"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
+            app:launchSingleTop="true"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right">
-            <argument
-                android:name="username"
-                app:argType="string"/>
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@+id/navigation_graph"
+            app:popUpToInclusive="true">
         </action>
     </fragment>
-    <include app:graph="@navigation/navigation_shows" android:id="@+id/showsNavigation" />
+    <include app:graph="@navigation/navigation_shows"/>
 </navigation>

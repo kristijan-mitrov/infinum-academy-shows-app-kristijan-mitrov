@@ -22,9 +22,11 @@
             app:cardCornerRadius="100dp">
 
             <ImageView
+                android:id="@+id/profilePhoto"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/squidward"/>
+                android:src="@drawable/squidward"
+                android:scaleType="centerCrop"/>
 
         </androidx.cardview.widget.CardView>
 

@@ -1,14 +1,20 @@
 package shows.kristijanmitrov.ui
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import shows.kristijanmitrov.infinumacademyshows.databinding.ViewReviewItemBinding
 import shows.kristijanmitrov.model.Review
 
-class ReviewAdapter(
-    private val items: MutableList<Review> = ArrayList(),
-): RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>(){
+class ReviewAdapter: ListAdapter<Review, ReviewAdapter.ReviewViewHolder>(
+    object : DiffUtil.ItemCallback<Review>() {
+        override fun areItemsTheSame(oldItem: Review, newItem: Review): Boolean = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Review, newItem: Review): Boolean = oldItem == newItem
+    }){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
         val binding = ViewReviewItemBinding.inflate(LayoutInflater.from(parent.context))
@@ -16,23 +22,17 @@ class ReviewAdapter(
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(getItem(position))
     }
-
-    override fun getItemCount() = items.count()
-
-    fun addReview(username: String, commentText: String, rating: Int) {
-        val review = Review( username, rating, commentText)
-        items.add(review)
-        notifyItemInserted(items.lastIndex)
-    }
-
-    fun getAverage() = items.sumOf { it.ratingValue }/itemCount.toFloat()
 
     inner class ReviewViewHolder(private val binding: ViewReviewItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Review) = with(binding){
-            username.text = item.username
+            item.user.profilePhoto?.let{
+                val profilePhotoUri = Uri.parse(item.user.profilePhoto)
+                profilePhoto.setImageURI(profilePhotoUri)
+            }
+            username.text = item.user.username
             descriptionText.text = item.descriptionText
             ratingValue.text = item.ratingValue.toString()
         }

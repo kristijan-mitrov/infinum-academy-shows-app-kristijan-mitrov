@@ -1,13 +1,16 @@
 package shows.kristijanmitrov.infinumacademyshows
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RatingBar
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -15,7 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowDetailsBinding
+import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.ui.ReviewAdapter
+import shows.kristijanmitrov.viewModel.ShowDetailsViewModel
 
 class ShowDetailsFragment : Fragment() {
 
@@ -23,6 +28,24 @@ class ShowDetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: ReviewAdapter
     private val args by navArgs<ShowDetailsFragmentArgs>()
+    private val viewModel by viewModels<ShowDetailsViewModel>()
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var user: User
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
+
+        val username = sharedPreferences.getString(Constants.USERNAME, null)
+        val email = sharedPreferences.getString(Constants.EMAIL, null)
+        val profilePhoto = sharedPreferences.getString(Constants.PROFILE_PHOTO, null)
+
+        if(username == null || email == null){
+            val directions = ShowsFragmentDirections.toLoginFragment()
+            findNavController().navigate(directions)
+        }else user = User(username, email, profilePhoto)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentShowDetailsBinding.inflate(inflater, container, false)
@@ -31,8 +54,35 @@ class ShowDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.init(args.show)
+
+        viewModel.show.observe(viewLifecycleOwner) { show ->
+            with(binding) {
+                toolbarTitle.text = show.title
+                title.text = show.title
+                image.setImageResource(show.image)
+                descriptionText.text = show.descriptionText
+            }
+        }
+
+        viewModel.ratingData.observe(viewLifecycleOwner) { ratingData ->
+            binding.reviewText.text = getString(R.string.d_reviews_2f_average, ratingData.numOfReviews, ratingData.averageRating)
+        }
+
+        viewModel.ratingBar.observe(viewLifecycleOwner) { averageRating ->
+            with(binding) {
+                ratingBar.rating = averageRating
+                emptyStateLayout.isVisible = false
+                reviewPanel.isVisible = true
+            }
+        }
+
+        viewModel.reviews.observe(viewLifecycleOwner) { reviews ->
+            adapter.submitList(reviews)
+        }
+
         initToolbar()
-        initShowInformation()
         initReviewRecycler()
         initWriteReviewButton()
     }
@@ -42,26 +92,12 @@ class ShowDetailsFragment : Fragment() {
         nestedScrollView.viewTreeObserver.addOnScrollChangedListener {
             val scrollBounds = Rect()
             nestedScrollView.getHitRect(scrollBounds)
-            if (title.getLocalVisibleRect(scrollBounds)) {
-                toolbar.title = null
-            } else {
-                toolbar.title = args.show.title
-            }
+            toolbarTitle.isVisible = !title.getLocalVisibleRect(scrollBounds)
         }
 
         //back
         toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
-        }
-    }
-
-    private fun initShowInformation() {
-        val show = args.show
-
-        with(binding) {
-            title.text = show.title
-            image.setImageResource(show.image)
-            descriptionText.text = show.descriptionText
         }
     }
 
@@ -72,10 +108,10 @@ class ShowDetailsFragment : Fragment() {
     }
 
     private fun showWriteReviewBottomSheet() {
-        val dialog = context?.let { BottomSheetDialog(it) }
+        val dialog = BottomSheetDialog(requireContext())
 
         val bottomSheetBinding = DialogAddReviewBinding.inflate(layoutInflater)
-        dialog?.setContentView(bottomSheetBinding.root)
+        dialog.setContentView(bottomSheetBinding.root)
 
         //init rating
         bottomSheetBinding.ratingBar.onRatingBarChangeListener =
@@ -85,44 +121,31 @@ class ShowDetailsFragment : Fragment() {
 
         //init submit button
         bottomSheetBinding.submitButton.setOnClickListener {
-
-            adapter.addReview(
-                args.username,
-                bottomSheetBinding.commentText.text.toString(),
-                bottomSheetBinding.ratingBar.rating.toInt()
-            )
-
-            val numOfReviews = adapter.itemCount
-            val averageRating = adapter.getAverage()
-            val reviewTextStr = getString(R.string.d_reviews_2f_average, numOfReviews, averageRating)
-            with(binding) {
-                reviewText.text = reviewTextStr
-                ratingBar.rating = averageRating
-                emptyStateLayout.isVisible = false
-                reviewPanel.isVisible = true
-            }
-
-            dialog?.dismiss()
+            viewModel.addReview(user, bottomSheetBinding.commentText.text.toString(), bottomSheetBinding.ratingBar.rating.toInt())
+            dialog.dismiss()
         }
 
         //init close icon
-        bottomSheetBinding.close.setOnClickListener{
-            dialog?.dismiss()
+        bottomSheetBinding.close.setOnClickListener {
+            dialog.dismiss()
         }
 
-        dialog?.show()
+        dialog.show()
     }
 
     private fun initReviewRecycler() {
         adapter = ReviewAdapter()
 
-        binding.reviewsRecycler.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        with(binding) {
+            reviewsRecycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            reviewsRecycler.adapter = adapter
+            reviewsRecycler.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
+    }
 
-        binding.reviewsRecycler.adapter = adapter
-        binding.reviewsRecycler.addItemDecoration(
-            DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        )
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

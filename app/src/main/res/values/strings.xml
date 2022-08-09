@@ -24,4 +24,19 @@
     <string name="submit">Submit</string>
     <string name="d_reviews_2f_average">%d REVIEWS, %.2f AVERAGE</string>
     <string name="show">Show</string>
+    <string name="change_profile_photo">Change profile photo</string>
+    <string name="remember_me">Remember me</string>
+    <string name="logout">Logout</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="close_icon">Close icon</string>
+    <string name="logging_out">Logging out</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="permission_must_be_granted_to_use_the_camera_app">Permission must be granted to use the camera app</string>
+    <string name="permission_must_be_granted_to_open_the_gallery">Permission must be granted to open the gallery</string>
+    <string name="email_error">Email must be in correct format!</string>
+    <string name="password_error">Password must be at least 6 characters long!</string>
 </resources>

@@ -1,18 +1,30 @@
 package shows.kristijanmitrov.infinumacademyshows
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.edit
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentLoginBinding
+import shows.kristijanmitrov.viewModel.LoginViewModel
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private val viewModel by viewModels<LoginViewModel>()
+    private lateinit var sharedPreferences: SharedPreferences
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedPreferences = requireContext().getSharedPreferences(Constants.LOGIN_PREFERENCES, Context.MODE_PRIVATE)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -22,39 +34,32 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initEmailInput()
-        initPasswordInput()
+        if (sharedPreferences.getBoolean(Constants.REMEMBER_ME, false)) {
+            val directions = LoginFragmentDirections.toShowsFragment()
+            findNavController().navigate(directions)
+        }
+
+        //Observers
+        viewModel.isLoginButtonEnabled.observe(viewLifecycleOwner) { isLoginButtonEnabled ->
+            binding.loginButton.isEnabled = isLoginButtonEnabled
+        }
+        viewModel.emailError.observe(viewLifecycleOwner) { emailError ->
+            binding.emailInput.error = if (emailError == null) null else getString(emailError)
+        }
+        viewModel.passwordError.observe(viewLifecycleOwner) { passwordError ->
+            binding.passwordInput.error = if (passwordError == null) null else getString(passwordError)
+        }
+
+        initListeners()
         initLoginButton()
     }
 
-    private fun check() {
-        if (!(binding.emailInput.error != null || binding.emailText.text == null || binding.passwordInput.error != null || binding.passwordText.text == null))
-            binding.loginButton.isEnabled = true
-    }
-
-    private fun initEmailInput() {
+    private fun initListeners() {
         binding.emailText.doOnTextChanged { text, _, _, _ ->
-            if (text.toString().matches(Regex("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+\$"))) {
-                binding.emailInput.error = null
-                check()
-            } else {
-                binding.emailInput.error = "Email must be in correct format!"
-                binding.loginButton.isEnabled = false
-            }
+            viewModel.onLoginInputChanged(text.toString(), binding.passwordText.text.toString())
         }
-    }
-
-    private fun initPasswordInput() {
         binding.passwordText.doOnTextChanged { text, _, _, _ ->
-            text?.let {
-                if (it.length < 6) {
-                    binding.passwordInput.error = "Password must be at least 6 characters long!"
-                    binding.loginButton.isEnabled = false
-                } else {
-                    binding.passwordInput.error = null
-                    check()
-                }
-            }
+            viewModel.onLoginInputChanged(binding.emailText.text.toString(), text.toString())
         }
     }
 
@@ -62,9 +67,15 @@ class LoginFragment : Fragment() {
 
         binding.loginButton.setOnClickListener {
             val username = binding.emailText.text.toString().split("@")[0]
+            val email = binding.emailText.text.toString()
 
-            val directions = LoginFragmentDirections.toShowsFragment(username)
+            sharedPreferences.edit {
+                if (binding.rememberMeCheckbox.isChecked) putBoolean(Constants.REMEMBER_ME, true)
+                putString(Constants.USERNAME, username)
+                putString(Constants.EMAIL, email)
+            }
 
+            val directions = LoginFragmentDirections.toShowsFragment()
             findNavController().navigate(directions)
         }
     }
@@ -74,3 +85,5 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 }
+
+

@@ -12,18 +12,6 @@ class ShowsAdapter(
     private val onItemClickCallback: (Show) -> Unit
 ): RecyclerView.Adapter<ShowsAdapter.ShowViewHolder>(){
 
-    //Shows List
-    private val shows = arrayListOf(
-        Show("1", "Stranger Things", "desc", R.drawable.stranger_things),
-        Show("2", "Dark", "desc", R.drawable.dark),
-        Show("3", "How I Met Your Mother", "desc", R.drawable.himym),
-        Show("4", "Game of Thrones", "desc", R.drawable.game_of_thrones),
-        Show("5", "Sex Education", "desc", R.drawable.sex_education),
-        Show("6", "Young Royals", "desc", R.drawable.young_royals),
-        Show("7", "The Crown", "desc", R.drawable.the_crown),
-        Show("8", "The Queens Gambit", "desc", R.drawable.the_queens_gambit)
-    )
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShowViewHolder {
         val binding = ViewShowItemBinding.inflate(LayoutInflater.from(parent.context))
         return ShowViewHolder(binding)
@@ -35,7 +23,7 @@ class ShowsAdapter(
 
     override fun getItemCount() = items.count()
 
-    fun setShows() {
+    fun setShows(shows: List<Show>) {
         items.addAll(shows)
         notifyItemInserted(items.lastIndex)
     }
