@@ -4,12 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.io.File
+import java.util.concurrent.Executors
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import shows.kristijanmitrov.database.ShowEntity
+import shows.kristijanmitrov.database.ShowsDatabase
 import shows.kristijanmitrov.model.api.ShowsResponse
 import shows.kristijanmitrov.model.api.ShowsResponseBody
 import shows.kristijanmitrov.model.api.TopRatedShowsResponseBody
@@ -17,13 +20,20 @@ import shows.kristijanmitrov.model.api.UpdateUserResponse
 import shows.kristijanmitrov.model.api.UpdateUserResponseBody
 import shows.kristijanmitrov.networking.ApiModule
 
-class ShowsViewModel : ViewModel() {
+class ShowsViewModel(
+    private val database: ShowsDatabase
+) : ViewModel() {
 
     private val showsResponseLiveData: MutableLiveData<ShowsResponse> by lazy { MutableLiveData<ShowsResponse>() }
+    private val showsLiveData: MutableLiveData<List<ShowEntity>> by lazy { MutableLiveData<List<ShowEntity>>() }
     private val updateUserResponseLiveData: MutableLiveData<UpdateUserResponse> by lazy { MutableLiveData<UpdateUserResponse>() }
 
     fun getShowsResultLiveData(): LiveData<ShowsResponse> {
         return showsResponseLiveData
+    }
+
+    fun getShowsLiveData(): LiveData<List<ShowEntity>> {
+        return database.showDao().getAllShows()
     }
 
     fun getUpdateUserResultLiveData(): LiveData<UpdateUserResponse> {
@@ -63,16 +73,30 @@ class ShowsViewModel : ViewModel() {
         ApiModule.retrofit.shows(accessToken, client, expiry, uid)
             .enqueue(object : Callback<ShowsResponseBody> {
                 override fun onResponse(call: Call<ShowsResponseBody>, response: Response<ShowsResponseBody>) {
-                    val showsResponse = ShowsResponse(
-                        isSuccessful = response.isSuccessful,
-                        body = response.body()
-                    )
 
-                    showsResponseLiveData.value = showsResponse
+                    response.body()?.shows?.let {
+                        showsLiveData.value = response.body()?.shows?.map { show ->
+                            ShowEntity(
+                                show.id,
+                                show.averageRating,
+                                show.description,
+                                show.imageUrl,
+                                show.noOfReviews,
+                                show.title
+                            )
+                        }
+
+                        Executors.newSingleThreadExecutor().execute {
+                            response.body()?.shows?.map { show ->
+                                ShowEntity(show.id, show.averageRating, show.description, show.imageUrl, show.noOfReviews, show.title)
+                            }?.let { showEntity ->
+                                database.showDao().insertAllShows(showEntity)
+                            }
+                        }
+                    }
                 }
 
                 override fun onFailure(call: Call<ShowsResponseBody>, t: Throwable) {
-
                     val showsResponse = ShowsResponse(
                         isSuccessful = false
                     )

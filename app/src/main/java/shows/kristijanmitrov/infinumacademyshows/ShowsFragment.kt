@@ -28,9 +28,11 @@ import java.io.File
 import java.io.IOException
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogProfileBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowsBinding
+import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.networking.ApiModule
 import shows.kristijanmitrov.ui.ShowsAdapter
+import shows.kristijanmitrov.viewModel.ShowViewModelFactory
 import shows.kristijanmitrov.viewModel.ShowsViewModel
 
 class ShowsFragment : Fragment() {
@@ -38,7 +40,9 @@ class ShowsFragment : Fragment() {
     private var _binding: FragmentShowsBinding? = null
     private val binding get() = _binding!!
     private var latestTmpUri: Uri? = null
-    private val viewModel by viewModels<ShowsViewModel>()
+    private val viewModel: ShowsViewModel by viewModels {
+        ShowViewModelFactory((activity?.application as ShowsApplication).database)
+    }
     private lateinit var bottomSheetBinding: DialogProfileBinding
     private lateinit var adapter: ShowsAdapter
     private lateinit var sharedPreferences: SharedPreferences
@@ -104,6 +108,8 @@ class ShowsFragment : Fragment() {
 
         ApiModule.initRetrofit(requireContext())
 
+        viewModel.init(accessToken, client, expiry, uid)
+
         initObservers()
         initToolbar()
         initShowRecycler()
@@ -119,8 +125,24 @@ class ShowsFragment : Fragment() {
                     shimmerPlaceholder.visibility = View.GONE
                     adapter.submitList(it.shows)
                 }
-            } else
-                Toast.makeText(requireContext(), "Shows failed to load", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Shows failed to load from API", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        viewModel.getShowsLiveData().observe(viewLifecycleOwner) { shows ->
+            if(shows.isNotEmpty()){
+                showsRecycler.isVisible = true
+                emptyStateLayout.isVisible = false
+                shimmerPlaceholder.stopShimmerAnimation()
+                shimmerPlaceholder.visibility = View.GONE
+                adapter.submitList(shows.map { showEntity ->
+                    Show(showEntity.id, showEntity.averageRating, showEntity.description, showEntity.imageUrl, showEntity.noOfReviews, showEntity.title)
+                })
+            }else{
+                showsRecycler.isVisible = false
+                emptyStateLayout.isVisible = true
+            }
         }
 
         viewModel.getUpdateUserResultLiveData().observe(viewLifecycleOwner) { UpdateUserResponse ->
@@ -136,12 +158,11 @@ class ShowsFragment : Fragment() {
         topRated.setOnClickListener {
             if (topRated.isChecked) {
                 viewModel.topRated(accessToken, client, expiry, uid)
-                showsRecycler.fling(0,0)
+                showsRecycler.fling(0, 0)
                 showsRecycler.smoothScrollToPosition(0)
-            }
-            else {
+            } else {
                 viewModel.init(accessToken, client, expiry, uid)
-                showsRecycler.fling(0,0)
+                showsRecycler.fling(0, 0)
                 showsRecycler.smoothScrollToPosition(0)
             }
         }
@@ -296,7 +317,6 @@ class ShowsFragment : Fragment() {
 
         showsRecycler.layoutManager = LinearLayoutManager(activity)
         showsRecycler.adapter = adapter
-        viewModel.init(accessToken, client, expiry, uid)
     }
 
     private fun initShowHideButton() = with(binding) {

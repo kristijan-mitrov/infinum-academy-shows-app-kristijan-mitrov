@@ -13,5 +13,5 @@ data class ShowsResponse(
 @Serializable
 data class ShowsResponseBody(
     @SerialName("shows") val shows: ArrayList<Show>,
-    @SerialName("meta") val meta: Meta?
+    @SerialName("meta") val meta: Meta? = null
 )

@@ -20,10 +20,12 @@ import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import shows.kristijanmitrov.infinumacademyshows.databinding.DialogAddReviewBinding
 import shows.kristijanmitrov.infinumacademyshows.databinding.FragmentShowDetailsBinding
+import shows.kristijanmitrov.model.Review
 import shows.kristijanmitrov.model.User
 import shows.kristijanmitrov.networking.ApiModule
 import shows.kristijanmitrov.ui.ReviewAdapter
 import shows.kristijanmitrov.viewModel.ShowDetailsViewModel
+import shows.kristijanmitrov.viewModel.ShowDetailsViewModelFactory
 
 class ShowDetailsFragment : Fragment() {
 
@@ -31,7 +33,9 @@ class ShowDetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: ReviewAdapter
     private val args by navArgs<ShowDetailsFragmentArgs>()
-    private val viewModel by viewModels<ShowDetailsViewModel>()
+    private val viewModel: ShowDetailsViewModel by viewModels {
+        ShowDetailsViewModelFactory((activity?.application as ShowsApplication).database)
+    }
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var user: User
     private lateinit var accessToken: String
@@ -97,21 +101,66 @@ class ShowDetailsFragment : Fragment() {
             }
         }
 
-        viewModel.reviews.observe(viewLifecycleOwner) { reviews ->
-            adapter.submitList(reviews)
+        viewModel.getReviewsLiveData(args.show.id, currentPage).observe(viewLifecycleOwner) { reviews ->
+            if (reviews.isNotEmpty()) {
+                reviewsRecycler.isVisible = true
+                emptyStateLayout.isVisible = false
+                shimmerPlaceholder.stopShimmerAnimation()
+                shimmerPlaceholder.visibility = View.GONE
+                val reviewsList = ArrayList<Review>()
+                reviews.map { review ->
+                    viewModel.getUserById(review.userId).observe(viewLifecycleOwner) { userEntity ->
+                        val user = User(userEntity.id, userEntity.email, userEntity.imageUrl)
+                        reviewsList.add(Review(review.id, review.comment, review.rating, review.showId.toInt(), user))
+                    }
+                }
+                adapter.submitList(reviewsList)
+                previousButton.isEnabled = currentPage > 1
+
+            } else {
+                reviewsRecycler.isVisible = false
+                emptyStateLayout.isVisible = true
+                shimmerPlaceholder.stopShimmerAnimation()
+                shimmerPlaceholder.visibility = View.GONE
+            }
+
         }
 
         viewModel.getReviewsResultLiveData().observe(viewLifecycleOwner) { ReviewsResponse ->
             if (ReviewsResponse.isSuccessful) {
                 ReviewsResponse.body?.let {
                     nextButton.isEnabled = currentPage < ReviewsResponse.body.meta.pagination.pages
-                    previousButton.isEnabled = currentPage > 1
                     shimmerPlaceholder.stopShimmerAnimation()
                     shimmerPlaceholder.visibility = View.GONE
                     adapter.submitList(it.reviews)
                 }
-            } else
-                Toast.makeText(requireContext(), "Reviews failed to load", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Reviews failed to load from API", Toast.LENGTH_SHORT).show()
+                viewModel.getReviewsLiveData(args.show.id, currentPage).observe(viewLifecycleOwner) { reviews ->
+                    if (reviews.isNotEmpty()) {
+                        reviewsRecycler.isVisible = true
+                        emptyStateLayout.isVisible = false
+                        shimmerPlaceholder.stopShimmerAnimation()
+                        shimmerPlaceholder.visibility = View.GONE
+                        val reviewsList = ArrayList<Review>()
+                        reviews.map { review ->
+                            viewModel.getUserById(review.userId).observe(viewLifecycleOwner) { userEntity ->
+                                val user = User(userEntity.id, userEntity.email, userEntity.imageUrl)
+                                reviewsList.add(Review(review.id, review.comment, review.rating, review.showId.toInt(), user))
+                            }
+                        }
+                        adapter.submitList(reviewsList)
+                        previousButton.isEnabled = currentPage > 1
+
+                    } else {
+                        reviewsRecycler.isVisible = false
+                        emptyStateLayout.isVisible = true
+                        shimmerPlaceholder.stopShimmerAnimation()
+                        shimmerPlaceholder.visibility = View.GONE
+                    }
+
+                }
+            }
         }
     }
 
