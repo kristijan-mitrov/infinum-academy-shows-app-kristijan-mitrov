@@ -92,7 +92,7 @@ class ShowDetailsFragment : Fragment() {
             descriptionText.text = show.description
             if (show.noOfReviews > 0 && show.averageRating != null) {
                 reviewText.text = getString(R.string.d_reviews_2f_average, show.noOfReviews, show.averageRating)
-                ratingBar.rating = show.averageRating
+                ratingBar.setRating(show.averageRating)
                 emptyStateLayout.isVisible = false
                 reviewPanel.isVisible = true
             }
