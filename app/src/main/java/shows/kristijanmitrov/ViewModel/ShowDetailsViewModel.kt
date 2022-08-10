@@ -3,42 +3,90 @@ package shows.kristijanmitrov.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import java.util.UUID
-import shows.kristijanmitrov.model.RatingData
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import shows.kristijanmitrov.model.Review
 import shows.kristijanmitrov.model.Show
-import shows.kristijanmitrov.model.User
+import shows.kristijanmitrov.model.api.AddReviewRequest
+import shows.kristijanmitrov.model.api.AddReviewResponse
+import shows.kristijanmitrov.model.api.AddReviewResponseBody
+import shows.kristijanmitrov.model.api.ReviewResponse
+import shows.kristijanmitrov.model.api.ReviewResponseBody
+import shows.kristijanmitrov.networking.ApiModule
 
 class ShowDetailsViewModel: ViewModel() {
 
-    private val reviewList = ArrayList<Review>()
-    private fun getAverageReview() =  reviewList.sumOf { review -> review.ratingValue }/reviewList.count().toFloat()
-
     private val _show: MutableLiveData<Show> = MutableLiveData()
-    private val _ratingData: MutableLiveData<RatingData> = MutableLiveData()
-    private val _ratingBar: MutableLiveData<Float> = MutableLiveData()
-    private val _reviews: MutableLiveData<List<Review>> = MutableLiveData()
+
+    private val _reviews: MutableLiveData<MutableList<Review>> = MutableLiveData()
+    private val reviewsResponseLiveData: MutableLiveData<ReviewResponse> by lazy { MutableLiveData<ReviewResponse>() }
+    private val addReviewsResponseLiveData: MutableLiveData<AddReviewResponse> by lazy { MutableLiveData<AddReviewResponse>() }
 
     val show: LiveData<Show> = _show
-    val ratingData: LiveData<RatingData> = _ratingData
-    val ratingBar: LiveData<Float> = _ratingBar
-    val reviews: LiveData<List<Review>> = _reviews
+    val reviews: LiveData<MutableList<Review>> = _reviews
 
 
-    fun init(show: Show){
-        _show.value = show
+    fun getReviewsResultLiveData(): LiveData<ReviewResponse> {
+        return reviewsResponseLiveData
     }
 
-    fun addReview(user: User, descriptionText: String, ratingValue: Int){
-        val newReview = Review(UUID.randomUUID(), user, ratingValue, descriptionText)
+    fun getReviews(showId: String, page: Int, accessToken: String, client: String, expiry: String, uid: String) {
 
-        reviewList.add(newReview)
+        ApiModule.retrofit.reviews(showId, page, accessToken, client, expiry, uid)
+            .enqueue(object: Callback<ReviewResponseBody> {
+                override fun onResponse(call: Call<ReviewResponseBody>, response: Response<ReviewResponseBody>) {
+                    val reviewResponse = ReviewResponse(
+                        isSuccessful = response.isSuccessful,
+                        body = response.body()
+                    )
+                    reviewsResponseLiveData.value = reviewResponse
+                }
 
-        val averageRating = getAverageReview()
-        val numOfReviews = reviewList.count()
+                override fun onFailure(call: Call<ReviewResponseBody>, t: Throwable) {
+                    val reviewResponse = ReviewResponse(
+                        isSuccessful = false
+                    )
+                    reviewsResponseLiveData.value = reviewResponse
+                }
 
-        _ratingData.value = RatingData(averageRating, numOfReviews)
-        _ratingBar.value = averageRating
-        _reviews.value = reviewList.toMutableList()
+            })
+    }
+
+
+    fun init(show: Show, accessToken: String, client: String, expiry: String, uid: String){
+        _show.value = show
+
+        getReviews(show.id, 1, accessToken, client, expiry, uid)
+    }
+
+    fun addReview(rating: Int, comment: String, show: Show, accessToken: String, client: String, expiry: String, uid: String){
+
+        val addReviewRequest = AddReviewRequest(
+            rating = rating,
+            comment = comment,
+            showId = show.id
+        )
+
+        ApiModule.retrofit.addReview(accessToken, client, expiry, uid, addReviewRequest)
+            .enqueue(object: Callback<AddReviewResponseBody>{
+                override fun onResponse(call: Call<AddReviewResponseBody>, response: Response<AddReviewResponseBody>) {
+                    val addReviewResponse = AddReviewResponse(
+                        isSuccessful = response.isSuccessful,
+                        body = response.body()
+                    )
+
+                    if(response.isSuccessful)
+                        getReviews(show.id, 1, accessToken, client, expiry, uid)
+
+                    addReviewsResponseLiveData.value = addReviewResponse
+                }
+
+                override fun onFailure(call: Call<AddReviewResponseBody>, t: Throwable) {
+                    val addReviewResponse = AddReviewResponse(
+                        isSuccessful = false
+                    )
+                    addReviewsResponseLiveData.value = addReviewResponse                }
+            })
     }
 }

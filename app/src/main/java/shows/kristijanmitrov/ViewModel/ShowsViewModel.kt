@@ -1,30 +1,117 @@
 package shows.kristijanmitrov.viewModel
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import shows.kristijanmitrov.infinumacademyshows.R
-import shows.kristijanmitrov.model.Show
+import java.io.File
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import shows.kristijanmitrov.model.api.ShowsResponse
+import shows.kristijanmitrov.model.api.ShowsResponseBody
+import shows.kristijanmitrov.model.api.TopRatedShowsResponseBody
+import shows.kristijanmitrov.model.api.UpdateUserResponse
+import shows.kristijanmitrov.model.api.UpdateUserResponseBody
+import shows.kristijanmitrov.networking.ApiModule
 
-class ShowsViewModel: ViewModel() {
+class ShowsViewModel : ViewModel() {
 
-    val showsList = arrayListOf(
-        Show("1", "Stranger Things", "desc", R.drawable.stranger_things),
-        Show("2", "Dark", "desc", R.drawable.dark),
-        Show("3", "How I Met Your Mother", "desc", R.drawable.himym),
-        Show("4", "Game of Thrones", "desc", R.drawable.game_of_thrones),
-        Show("5", "Sex Education", "desc", R.drawable.sex_education),
-        Show("6", "Young Royals", "desc", R.drawable.young_royals),
-        Show("7", "The Crown", "desc", R.drawable.the_crown),
-        Show("8", "The Queens Gambit", "desc", R.drawable.the_queens_gambit)
-    )
+    private val showsResponseLiveData: MutableLiveData<ShowsResponse> by lazy { MutableLiveData<ShowsResponse>() }
+    private val updateUserResponseLiveData: MutableLiveData<UpdateUserResponse> by lazy { MutableLiveData<UpdateUserResponse>() }
 
-    private val _profilePhoto: MutableLiveData<Uri> = MutableLiveData()
-    val profilePhoto: LiveData<Uri> = _profilePhoto
+    fun getShowsResultLiveData(): LiveData<ShowsResponse> {
+        return showsResponseLiveData
+    }
 
-    fun onProfilePhotoChanged(uri: Uri){
-        _profilePhoto.value = uri
+    fun getUpdateUserResultLiveData(): LiveData<UpdateUserResponse> {
+        return updateUserResponseLiveData
+    }
+
+    fun onProfilePhotoChanged(file: File, accessToken: String, client: String, expiry: String, uid: String) {
+        ApiModule.retrofit.updateUser(
+            accessToken = accessToken,
+            client = client,
+            expiry = expiry,
+            uid = uid,
+            image = MultipartBody.Part.createFormData(
+                "image",
+                file.name,
+                file.asRequestBody("multipart/form-data".toMediaType())
+            )
+        ).enqueue(object : Callback<UpdateUserResponseBody> {
+            override fun onResponse(call: Call<UpdateUserResponseBody>, response: Response<UpdateUserResponseBody>) {
+                val updateUserResponse = UpdateUserResponse(
+                    isSuccessful = response.isSuccessful,
+                    body = response.body()
+                )
+                updateUserResponseLiveData.value = updateUserResponse
+            }
+
+            override fun onFailure(call: Call<UpdateUserResponseBody>, t: Throwable) {
+                val updateUserResponse = UpdateUserResponse(
+                    isSuccessful = false
+                )
+                updateUserResponseLiveData.value = updateUserResponse
+            }
+        })
+    }
+
+    fun init(accessToken: String, client: String, expiry: String, uid: String) {
+        ApiModule.retrofit.shows(accessToken, client, expiry, uid)
+            .enqueue(object : Callback<ShowsResponseBody> {
+                override fun onResponse(call: Call<ShowsResponseBody>, response: Response<ShowsResponseBody>) {
+                    val showsResponse = ShowsResponse(
+                        isSuccessful = response.isSuccessful,
+                        body = response.body()
+                    )
+
+                    showsResponseLiveData.value = showsResponse
+                }
+
+                override fun onFailure(call: Call<ShowsResponseBody>, t: Throwable) {
+
+                    val showsResponse = ShowsResponse(
+                        isSuccessful = false
+                    )
+
+                    showsResponseLiveData.value = showsResponse
+                }
+
+            })
+    }
+
+    fun topRated(accessToken: String, client: String, expiry: String, uid: String) {
+        ApiModule.retrofit.topRatedShows(accessToken, client, expiry, uid)
+            .enqueue(object : Callback<TopRatedShowsResponseBody> {
+                override fun onResponse(call: Call<TopRatedShowsResponseBody>, response: Response<TopRatedShowsResponseBody>) {
+                    val body = response.body()?.shows?.let {
+                        ShowsResponseBody(
+                            shows = it,
+                            meta = null
+                        )
+                    }
+
+                    val showsResponse = ShowsResponse(
+                        isSuccessful = response.isSuccessful,
+                        body = body
+                    )
+
+                    showsResponseLiveData.value = showsResponse
+                }
+
+                override fun onFailure(call: Call<TopRatedShowsResponseBody>, t: Throwable) {
+
+                    val showsResponse = ShowsResponse(
+                        isSuccessful = false
+                    )
+
+                    showsResponseLiveData.value = showsResponse
+                }
+
+            })
     }
 
 }

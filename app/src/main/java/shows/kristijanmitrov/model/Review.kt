@@ -1,10 +1,13 @@
 package shows.kristijanmitrov.model
 
-import java.util.UUID
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Review(
-    val id: UUID,
-    val user: User,
-    val ratingValue: Int,
-    val descriptionText: String
+    @SerialName("id") val id: String,
+    @SerialName("comment") val comment: String?,
+    @SerialName("rating") val rating: Int,
+    @SerialName("show_id") val showId: Int,
+    @SerialName("user") val user: User,
 )

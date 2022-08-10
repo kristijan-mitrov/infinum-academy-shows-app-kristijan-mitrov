@@ -13,7 +13,6 @@
         android:layout_height="match_parent"
         android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="8dp"
-        android:foreground="@drawable/ripple_effect"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp">
 
@@ -26,28 +25,23 @@
                 android:id="@+id/image"
                 android:layout_width="match_parent"
                 android:layout_height="184dp"
-                android:scaleType="centerCrop"
-                tools:src="@drawable/stranger_things"/>
+                android:background="@color/gray"/>
 
             <TextView
                 android:id="@+id/title"
+                android:background="@color/gray"
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
-                android:layout_margin="8dp"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="@string/stranger_things"/>
+                android:layout_margin="8dp"/>
 
             <TextView
                 android:id="@+id/descriptionText"
+                android:background="@color/gray"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginBottom="8dp"
-                android:textColor="@color/dark_gray"
-                android:textSize="16sp"
-                tools:text="@string/test_string"/>
+                android:textColor="@color/dark_gray"/>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
