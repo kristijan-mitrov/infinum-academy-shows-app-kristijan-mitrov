@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.BounceInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.view.isVisible
@@ -56,6 +58,11 @@ class LoginFragment : Fragment() {
         initListeners()
         initLoginButton()
         initRegisterButton()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        animateTitle()
     }
 
     private fun initObservers() = with(viewModel) {
@@ -109,6 +116,27 @@ class LoginFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             viewModel.onLogInButtonClicked(binding.emailText.text.toString(), binding.passwordText.text.toString())
         }
+    }
+
+    private fun animateTitle() = with(binding){
+        shows.translationY = -200f
+        shows.animate()
+            .translationY(0f)
+            .setDuration(3000)
+            .setInterpolator(BounceInterpolator())
+            .start()
+
+        triangle.alpha = 0f
+        triangle.animate()
+            .alpha(1f)
+            .setDuration(3000)
+            .setInterpolator(OvershootInterpolator())
+            .start()
+
+        circle.animate()
+            .rotation(-360f*10f)
+            .setDuration(1000*100)
+            .start()
     }
 
     override fun onDestroyView() {
