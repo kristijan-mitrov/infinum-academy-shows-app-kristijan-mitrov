@@ -23,7 +23,6 @@ class ShowDetailsViewModel(
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
     private val reviewsResponseLiveData: MutableLiveData<ReviewResponse> by lazy { MutableLiveData<ReviewResponse>() }
-    private val addReviewsResponseLiveData: MutableLiveData<AddReviewResponse> by lazy { MutableLiveData<AddReviewResponse>() }
 
     val show: LiveData<Show> = _show
 
@@ -67,9 +66,7 @@ class ShowDetailsViewModel(
                     }
                 }
 
-                override fun onFailure(call: Call<ReviewResponseBody>, t: Throwable) {
-
-                }
+                override fun onFailure(call: Call<ReviewResponseBody>, t: Throwable) { }
 
             })
 
@@ -104,16 +101,9 @@ class ShowDetailsViewModel(
                     if (response.isSuccessful)
                         getReviews(show.id, accessToken, client, expiry, uid)
 
-                    addReviewsResponseLiveData.value = addReviewResponse
                 }
 
-                override fun onFailure(call: Call<AddReviewResponseBody>, t: Throwable) {
-                    val addReviewResponse = AddReviewResponse(
-                        isSuccessful = false
-                    )
-
-                    addReviewsResponseLiveData.value = addReviewResponse
-                }
+                override fun onFailure(call: Call<AddReviewResponseBody>, t: Throwable) { }
             })
     }
 }
