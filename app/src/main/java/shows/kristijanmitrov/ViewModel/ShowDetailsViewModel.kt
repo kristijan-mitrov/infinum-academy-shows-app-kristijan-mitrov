@@ -21,19 +21,23 @@ class ShowDetailsViewModel(
 ) : ViewModel() {
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
+    
     private val reviewsResponseLiveData: MutableLiveData<ReviewResponse> by lazy { MutableLiveData<ReviewResponse>() }
 
     val show: LiveData<Show> = _show
 
+
     fun getReviewsResultLiveData(): LiveData<ReviewResponse> {
         return reviewsResponseLiveData
     }
+
 
     fun getReviewsLiveData(showId: String): LiveData<List<ReviewEntity>> {
         return database.reviewDao().getAllReviewsForShow(showId)
     }
 
     fun getPage(showId: String, page: Int, accessToken: String, client: String, expiry: String, uid: String){
+
         ApiModule.retrofit.reviews(showId, page, accessToken, client, expiry, uid)
             .enqueue(object : Callback<ReviewResponseBody> {
                 override fun onResponse(call: Call<ReviewResponseBody>, response: Response<ReviewResponseBody>) {
@@ -98,6 +102,7 @@ class ShowDetailsViewModel(
                 }
 
                 override fun onFailure(call: Call<AddReviewResponseBody>, t: Throwable) { }
+
             })
     }
 }
