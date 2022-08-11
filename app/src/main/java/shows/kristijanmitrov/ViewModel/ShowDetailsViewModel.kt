@@ -11,7 +11,6 @@ import shows.kristijanmitrov.database.ReviewEntity
 import shows.kristijanmitrov.database.ShowsDatabase
 import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.model.api.AddReviewRequest
-import shows.kristijanmitrov.model.api.AddReviewResponse
 import shows.kristijanmitrov.model.api.AddReviewResponseBody
 import shows.kristijanmitrov.model.api.ReviewResponse
 import shows.kristijanmitrov.model.api.ReviewResponseBody
@@ -93,11 +92,6 @@ class ShowDetailsViewModel(
         ApiModule.retrofit.addReview(accessToken, client, expiry, uid, addReviewRequest)
             .enqueue(object : Callback<AddReviewResponseBody> {
                 override fun onResponse(call: Call<AddReviewResponseBody>, response: Response<AddReviewResponseBody>) {
-                    val addReviewResponse = AddReviewResponse(
-                        isSuccessful = response.isSuccessful,
-                        body = response.body()
-                    )
-
                     if (response.isSuccessful)
                         getReviews(show.id, accessToken, client, expiry, uid)
 
