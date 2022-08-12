@@ -11,7 +11,6 @@ import shows.kristijanmitrov.database.ReviewEntity
 import shows.kristijanmitrov.database.ShowsDatabase
 import shows.kristijanmitrov.model.Show
 import shows.kristijanmitrov.model.api.AddReviewRequest
-import shows.kristijanmitrov.model.api.AddReviewResponse
 import shows.kristijanmitrov.model.api.AddReviewResponseBody
 import shows.kristijanmitrov.model.api.ReviewResponse
 import shows.kristijanmitrov.model.api.ReviewResponseBody
@@ -22,20 +21,23 @@ class ShowDetailsViewModel(
 ) : ViewModel() {
 
     private val _show: MutableLiveData<Show> = MutableLiveData()
+    
     private val reviewsResponseLiveData: MutableLiveData<ReviewResponse> by lazy { MutableLiveData<ReviewResponse>() }
-    private val addReviewsResponseLiveData: MutableLiveData<AddReviewResponse> by lazy { MutableLiveData<AddReviewResponse>() }
 
     val show: LiveData<Show> = _show
+
 
     fun getReviewsResultLiveData(): LiveData<ReviewResponse> {
         return reviewsResponseLiveData
     }
+
 
     fun getReviewsLiveData(showId: String): LiveData<List<ReviewEntity>> {
         return database.reviewDao().getAllReviewsForShow(showId)
     }
 
     fun getPage(showId: String, page: Int, accessToken: String, client: String, expiry: String, uid: String){
+
         ApiModule.retrofit.reviews(showId, page, accessToken, client, expiry, uid)
             .enqueue(object : Callback<ReviewResponseBody> {
                 override fun onResponse(call: Call<ReviewResponseBody>, response: Response<ReviewResponseBody>) {
@@ -67,9 +69,7 @@ class ShowDetailsViewModel(
                     }
                 }
 
-                override fun onFailure(call: Call<ReviewResponseBody>, t: Throwable) {
-
-                }
+                override fun onFailure(call: Call<ReviewResponseBody>, t: Throwable) { }
 
             })
 
@@ -96,24 +96,13 @@ class ShowDetailsViewModel(
         ApiModule.retrofit.addReview(accessToken, client, expiry, uid, addReviewRequest)
             .enqueue(object : Callback<AddReviewResponseBody> {
                 override fun onResponse(call: Call<AddReviewResponseBody>, response: Response<AddReviewResponseBody>) {
-                    val addReviewResponse = AddReviewResponse(
-                        isSuccessful = response.isSuccessful,
-                        body = response.body()
-                    )
-
                     if (response.isSuccessful)
                         getReviews(show.id, accessToken, client, expiry, uid)
 
-                    addReviewsResponseLiveData.value = addReviewResponse
                 }
 
-                override fun onFailure(call: Call<AddReviewResponseBody>, t: Throwable) {
-                    val addReviewResponse = AddReviewResponse(
-                        isSuccessful = false
-                    )
+                override fun onFailure(call: Call<AddReviewResponseBody>, t: Throwable) { }
 
-                    addReviewsResponseLiveData.value = addReviewResponse
-                }
             })
     }
 }
