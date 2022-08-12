@@ -8,6 +8,35 @@
     android:layout_height="match_parent"
     android:background="@color/primary">
 
+    <ImageView
+        android:id="@+id/topLeftIllustration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-14dp"
+        android:contentDescription="@string/illustration"
+        android:src="@drawable/top_left_illustration"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/topRightIllustration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/top_right_illustration"
+        android:contentDescription="@string/illustration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/circle"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginTop="195dp"
+        android:src="@drawable/circle_arror"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <include
         layout="@layout/login_register_top"
         android:id="@+id/top"/>

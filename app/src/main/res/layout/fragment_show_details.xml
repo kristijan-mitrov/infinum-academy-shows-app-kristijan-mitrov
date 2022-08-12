@@ -110,14 +110,11 @@
                     android:text="@string/d_reviews_2f_average"
                     android:textColor="@color/gray"/>
 
-                <RatingBar
+                <shows.kristijanmitrov.infinumacademyshows.RatingBarView
                     android:id="@+id/ratingBar"
-                    style="?android:attr/ratingBarStyleIndicator"
+                    app:size="small"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:isIndicator="true"
-                    tools:rating="4"/>
+                    android:layout_height="wrap_content"/>
 
                 <com.facebook.shimmer.ShimmerFrameLayout
                     android:id="@+id/shimmerPlaceholder"
